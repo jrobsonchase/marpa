@@ -1,0 +1,8 @@
+[package]
+name = "libmarpa-sys"
+version = "0.1.0"
+authors = ["Josh Chase <jcjoshuachase@gmail.com>"]
+build = "build.rs"
+
+[dependencies]
+libc = "*"
