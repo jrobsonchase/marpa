@@ -1,0 +1,12 @@
+[package]
+name = "marpa"
+version = "0.1.0"
+authors = ["Josh Chase <jcjoshuachase@gmail.com>"]
+
+[dependencies]
+libc = "*"
+
+[dependencies.libmarpa-sys]
+git = "https://github.com/Pursuit92/libmarpa-sys.git"
+#path = "/home/jchase/Dev/src/github.com/Pursuit92/libmarpa-sys"
+
