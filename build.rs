@@ -13,7 +13,6 @@ fn main() {
         .env("CFLAGS", "-fPIC")
         .status().unwrap();
     Command::new("make").current_dir(&libmarpa_dir)
-        .env("CFLAGS", "-fPIC")
         .status().unwrap();
     println!("cargo:rustc-link-search=native={}/.libs", libmarpa_dir);
     println!("cargo:rustc-link-lib=static=marpa");

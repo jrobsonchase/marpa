@@ -375,3 +375,12 @@ pub fn marpa_r_earley_item_warning_threshold_set(r: Marpa_Recognizer,
                                                                      ::libc::c_int>)
      -> ();
 }
+
+#[test]
+fn stuff() {
+    unsafe {
+        let mut a = Marpa_Config::default();
+        let b = marpa_c_init(&mut a);
+        let c = marpa_g_new(&mut a);
+    }
+}
