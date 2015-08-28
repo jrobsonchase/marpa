@@ -10,8 +10,10 @@ fn main() {
 
     Command::new("tar").arg("xf").arg(&libmarpa_tarball).status().unwrap();
     Command::new("./configure").current_dir(&libmarpa_dir)
+        .env("CFLAGS", "-fPIC")
         .status().unwrap();
     Command::new("make").current_dir(&libmarpa_dir)
+        .env("CFLAGS", "-fPIC")
         .status().unwrap();
     println!("cargo:rustc-link-search=native={}/.libs", libmarpa_dir);
     println!("cargo:rustc-link-lib=static=marpa");
