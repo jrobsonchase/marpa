@@ -1,3 +1,5 @@
+use desc;
+
 pub type MarpaResult<T> = Result<T, String>;
 
 pub fn err<S: Into<String>, T>(msg: S) -> MarpaResult<T> {
@@ -5,9 +7,5 @@ pub fn err<S: Into<String>, T>(msg: S) -> MarpaResult<T> {
 }
 
 pub fn err_code<T>(code: i32) -> MarpaResult<T> {
-    Err(format!("error code when creating grammar: {}", code))
+    Err(desc::err_desc(code as usize).into())
 }
-
-pub const ErrNotOk: &'static str = "marpa is not in an ok state";
-pub const ErrNoSym: &'static str = "no such symbol";
-pub const ErrNotPrecomputed: &'static str = "grammar is not precomputed";

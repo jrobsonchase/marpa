@@ -4,6 +4,8 @@ use thin::{
     Symbol,
 };
 
+use desc;
+
 
 #[test]
 fn create_grammar() {
@@ -19,4 +21,9 @@ fn set_start() {
     assert!(g.set_start(sym).unwrap() == sym);
 
     assert!(g.get_start().unwrap() == sym);
+}
+
+#[test]
+fn test_not_ok() {
+    assert!(desc::err_desc(29) == "Marpa is in a not OK state");
 }

@@ -7,6 +7,7 @@ use libmarpa_sys::{
     marpa_c_init,
     marpa_c_error,
     marpa_g_new,
+    marpa_g_error,
     marpa_g_force_valued,
     marpa_g_unref,
     marpa_g_symbol_new,
@@ -14,13 +15,16 @@ use libmarpa_sys::{
     marpa_g_start_symbol_set,
     marpa_g_highest_symbol_id,
     marpa_g_symbol_is_accessible,
+    marpa_g_symbol_is_nullable,
+    marpa_g_symbol_is_nulling,
+    marpa_g_symbol_is_productive,
+    marpa_g_symbol_is_terminal,
+    marpa_g_symbol_is_terminal_set,
     MARPA_ERR_NONE,
 };
 
 use result::{
     MarpaResult,
-    ErrNotOk,
-    ErrNoSym,
     err,
     err_code,
 };
@@ -51,7 +55,6 @@ impl Config {
         unsafe {
             match marpa_c_error(&mut self.internal, ptr::null_mut()) {
                 0 => Ok(()),
-                29 => err(ErrNotOk),
                 err => err_code(err),
             }
         }
@@ -75,6 +78,13 @@ impl Grammar {
         }
     }
 
+    fn error(&mut self) -> MarpaResult<()> {
+        match unsafe { marpa_g_error(self.internal, ptr::null_mut()) } {
+            0 => Ok(()),
+            code => err_code(code),
+        }
+    }
+
     pub fn new_symbol(&mut self) -> MarpaResult<Symbol> {
         unsafe {
             match marpa_g_symbol_new(self.internal) {
@@ -87,7 +97,7 @@ impl Grammar {
     pub fn get_start(&self) -> MarpaResult<Symbol> {
         unsafe {
             match marpa_g_start_symbol(self.internal) {
-                -1 => err(ErrNoSym),
+                -1 => err_code(90),
                 -2 => err("error getting start symbol"),
                 sym_id => Ok(Symbol(sym_id)),
             }
@@ -97,7 +107,7 @@ impl Grammar {
     pub fn set_start(&mut self, sym: Symbol) -> MarpaResult<Symbol> {
         unsafe {
             match marpa_g_start_symbol_set(self.internal, sym.0) {
-                -1 => err(ErrNoSym),
+                -1 => err_code(90),
                 -2 => err("error setting start symbol"),
                 sym_id => Ok(Symbol(sym_id)),
             }
@@ -108,7 +118,7 @@ impl Grammar {
         let mut max = unsafe { marpa_g_highest_symbol_id(self.internal) };
         match max {
             -2 => err("error getting highest symbol"),
-            max => Ok(SymIter{ grammar: self, current: 0, max: max })
+            max => Ok(SymIter{ current: 0, max: max })
         }
     }
 
@@ -116,20 +126,74 @@ impl Grammar {
         match unsafe { marpa_g_symbol_is_accessible(self.internal, sym.0) } {
             1 => Ok(true),
             0 => Ok(false),
-            -1 => err(ErrNoSym),
+            -1 => err_code(90),
             -2 => err("error checking symbol accessibility"),
+            _ => panic!("unexpected error code"),
+        }
+    }
+
+    pub fn is_nullable(&self, sym: Symbol) -> MarpaResult<bool> {
+        match unsafe { marpa_g_symbol_is_nullable(self.internal, sym.0) } {
+            1 => Ok(true),
+            0 => Ok(false),
+            -1 => err_code(90),
+            -2 => err("error checking symbol nullability"),
+            _ => panic!("unexpected error code"),
+        }
+    }
+
+    pub fn is_nulling(&self, sym: Symbol) -> MarpaResult<bool> {
+        match unsafe { marpa_g_symbol_is_nulling(self.internal, sym.0) } {
+            1 => Ok(true),
+            0 => Ok(false),
+            -1 => err_code(90),
+            -2 => err("error checking symbol nullness"),
+            _ => panic!("unexpected error code"),
+        }
+    }
+
+    pub fn is_productive(&self, sym: Symbol) -> MarpaResult<bool> {
+        match unsafe { marpa_g_symbol_is_productive(self.internal, sym.0) } {
+            1 => Ok(true),
+            0 => Ok(false),
+            -1 => err_code(90),
+            -2 => err("error checking symbol productivity"),
+            _ => panic!("unexpected error code"),
+        }
+    }
+
+    pub fn is_terminal(&self, sym: Symbol) -> MarpaResult<bool> {
+        match unsafe { marpa_g_symbol_is_terminal(self.internal, sym.0) } {
+            1 => Ok(true),
+            0 => Ok(false),
+            -1 => err_code(90),
+            -2 => err("error checking symbol terminality"),
+            _ => panic!("unexpected error code"),
+        }
+    }
+
+    pub fn set_terminal(&mut self, sym: Symbol, term: bool) -> MarpaResult<bool> {
+        match unsafe { marpa_g_symbol_is_terminal_set(self.internal, sym.0, term as i32) } {
+            1 => Ok(true),
+            0 => Ok(false),
+            -1 => err_code(90),
+            -2 => {
+                match self.error() {
+                    Ok(()) => err_code(-2),
+                    Err(error) => Err(error),
+                }
+            },
             _ => panic!("unexpected error code"),
         }
     }
 }
 
-pub struct SymIter<'a> {
-    grammar: &'a Grammar,
+pub struct SymIter {
     max: i32,
     current: i32,
 }
 
-impl<'a> Iterator for SymIter<'a> {
+impl Iterator for SymIter {
     type Item = Symbol;
 
     fn next(&mut self) -> Option<Self::Item> {
