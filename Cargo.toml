@@ -5,6 +5,4 @@ authors = ["Josh Chase <jcjoshuachase@gmail.com>"]
 
 [dependencies]
 libc = "*"
-
-[dependencies.libmarpa-sys]
-git = "https://github.com/Pursuit92/libmarpa-sys.git"
+libmarpa-sys = "0.1.0"

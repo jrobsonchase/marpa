@@ -1,18 +1,19 @@
 pub fn err_desc(code: usize) -> String {
-    marpa_error_description[code].2.into()
+    MARPA_ERROR_DESCRIPTION[code].2.into()
 }
 
 pub fn event_desc(code: usize) -> String {
-    marpa_error_description[code].2.into()
+    MARPA_EVENT_DESCRIPTION[code].2.into()
 }
 
-pub fn step_type_name(code: usize) -> &'static str {
-    marpa_error_description[code].2
+pub fn step_type_name(code: usize) -> String {
+    MARPA_STEP_TYPE_NAME[code].1.into()
 }
 
 type MarpaDescription = (i32, &'static str, &'static str);
 
-const marpa_error_description: &'static [MarpaDescription] = &[
+#[allow(unused)]
+const MARPA_ERROR_DESCRIPTION: &'static [MarpaDescription] = &[
     (0, "MARPA_ERR_NONE", "No error" ),
     (1, "MARPA_ERR_AHFA_IX_NEGATIVE", "MARPA_ERR_AHFA_IX_NEGATIVE" ),
     (2, "MARPA_ERR_AHFA_IX_OOB", "MARPA_ERR_AHFA_IX_OOB" ),
@@ -115,7 +116,7 @@ const marpa_error_description: &'static [MarpaDescription] = &[
     (99, "MARPA_ERR_NOT_A_SEQUENCE", "Rule is not a sequence" ),
     ];
 
-const marpa_event_description: &'static [MarpaDescription] = &[
+const MARPA_EVENT_DESCRIPTION: &'static [MarpaDescription] = &[
     (0, "MARPA_EVENT_NONE", "No event" ),
     (1, "MARPA_EVENT_COUNTED_NULLABLE", "This symbol is a counted nullable" ),
     (2, "MARPA_EVENT_EARLEY_ITEM_THRESHOLD", "Too many Earley items" ),
@@ -128,7 +129,7 @@ const marpa_event_description: &'static [MarpaDescription] = &[
     (9, "MARPA_EVENT_SYMBOL_PREDICTED", "Symbol was predicted" ),
     ];
 
-const marpa_step_type_description: &'static [MarpaDescription] = &[
+const MARPA_STEP_TYPE_NAME: &'static [MarpaDescription] = &[
   ( 0, "MARPA_STEP_INTERNAL1" , ""),
   ( 1, "MARPA_STEP_RULE" , ""),
   ( 2, "MARPA_STEP_TOKEN" , ""),
@@ -139,14 +140,12 @@ const marpa_step_type_description: &'static [MarpaDescription] = &[
   ( 7, "MARPA_STEP_INITIAL" , ""),
     ];
 
-// #line 1 "./marpa.c-step"
-// const struct marpa_step_type_description_s marpa_step_type_description[] = {
-//   { 0, "MARPA_STEP_INTERNAL1" },
-//   { 1, "MARPA_STEP_RULE" },
-//   { 2, "MARPA_STEP_TOKEN" },
-//   { 3, "MARPA_STEP_NULLING_SYMBOL" },
-//   { 4, "MARPA_STEP_TRACE" },
-//   { 5, "MARPA_STEP_INACTIVE" },
-//   { 6, "MARPA_STEP_INTERNAL2" },
-//   { 7, "MARPA_STEP_INITIAL" },
-// };
+#[cfg(test)]
+mod tests {
+    use desc;
+
+    #[test]
+    fn test_not_ok() {
+        assert!(desc::err_desc(29) == "Marpa is in a not OK state");
+    }
+}

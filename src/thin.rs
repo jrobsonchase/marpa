@@ -150,11 +150,11 @@ impl Grammar {
 
     pub fn is_accessible(&self, sym: Symbol) -> MarpaResult<bool> {
         match unsafe { marpa_g_symbol_is_accessible(self.internal, sym.0) } {
-            1 => Ok(true),
-            0 => Ok(false),
+            1  => Ok(true),
+            0  => Ok(false),
             -1 => err_nosym(),
             -2 => err("error checking symbol accessibility"),
-            _ => panic!("unexpected error code"),
+            _  => panic!("unexpected error code"),
         }
     }
 
@@ -235,4 +235,32 @@ pub struct Symbol(Marpa_Symbol_ID);
 pub enum Rule {
     BNF(Marpa_Rule_ID),
     Seq(Marpa_Rule_ID),
+}
+
+#[cfg(test)]
+mod tests {
+    use thin::{
+        Config,
+        Grammar,
+        Symbol,
+    };
+
+    use desc;
+
+
+    #[test]
+    fn create_grammar() {
+        let cfg = Config::new();
+        let _ = Grammar::new(cfg);
+    }
+
+    #[test]
+    fn set_start() {
+        let mut g: Grammar = Grammar::new(Config::new()).unwrap();
+
+        let sym: Symbol = g.new_symbol().unwrap();
+        assert!(g.set_start(sym).unwrap() == sym);
+
+        assert!(g.get_start().unwrap() == sym);
+    }
 }
