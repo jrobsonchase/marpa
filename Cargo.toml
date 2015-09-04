@@ -8,5 +8,3 @@ libc = "*"
 
 [dependencies.libmarpa-sys]
 git = "https://github.com/Pursuit92/libmarpa-sys.git"
-#path = "/home/jchase/Dev/src/github.com/Pursuit92/libmarpa-sys"
-

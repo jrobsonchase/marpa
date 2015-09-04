@@ -7,5 +7,12 @@ pub fn err<S: Into<String>, T>(msg: S) -> MarpaResult<T> {
 }
 
 pub fn err_code<T>(code: i32) -> MarpaResult<T> {
-    Err(desc::err_desc(code as usize).into())
+    match code {
+        code if code >= 0 => Err(desc::err_desc(code as usize).into()),
+        code => Err(format!("undefined error code: {}", code)),
+    }
+}
+
+pub fn err_nosym<T>() -> MarpaResult<T> {
+    err_code(90)
 }

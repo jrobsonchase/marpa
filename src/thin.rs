@@ -9,6 +9,7 @@ use libmarpa_sys::{
     marpa_g_new,
     marpa_g_error,
     marpa_g_force_valued,
+    marpa_g_ref,
     marpa_g_unref,
     marpa_g_symbol_new,
     marpa_g_start_symbol,
@@ -27,6 +28,7 @@ use result::{
     MarpaResult,
     err,
     err_code,
+    err_nosym,
 };
 
 use std::mem::forget;
@@ -55,7 +57,8 @@ impl Config {
         unsafe {
             match marpa_c_error(&mut self.internal, ptr::null_mut()) {
                 0 => Ok(()),
-                err => err_code(err),
+                err if err > 0 => err_code(err),
+                _ => err("error creating grammar"),
             }
         }
     }
@@ -63,6 +66,22 @@ impl Config {
 
 pub struct Grammar {
     internal: Marpa_Grammar,
+}
+
+impl Clone for Grammar {
+    fn clone(&self) -> Grammar {
+        unsafe { marpa_g_ref(self.internal) };
+        Grammar { internal: self.internal }
+    }
+}
+
+impl Drop for Grammar {
+    fn drop(&mut self) {
+        forget(self.internal);
+        unsafe {
+            marpa_g_unref(self.internal);
+        }
+    }
 }
 
 impl Grammar {
@@ -85,6 +104,13 @@ impl Grammar {
         }
     }
 
+    fn error_or<S: Into<String>, T>(&mut self, s: S) -> MarpaResult<T> {
+        match self.error() {
+            Ok(()) => err(s),
+            Err(error) => err(error),
+        }
+    }
+
     pub fn new_symbol(&mut self) -> MarpaResult<Symbol> {
         unsafe {
             match marpa_g_symbol_new(self.internal) {
@@ -97,7 +123,7 @@ impl Grammar {
     pub fn get_start(&self) -> MarpaResult<Symbol> {
         unsafe {
             match marpa_g_start_symbol(self.internal) {
-                -1 => err_code(90),
+                -1 => err_nosym(),
                 -2 => err("error getting start symbol"),
                 sym_id => Ok(Symbol(sym_id)),
             }
@@ -107,7 +133,7 @@ impl Grammar {
     pub fn set_start(&mut self, sym: Symbol) -> MarpaResult<Symbol> {
         unsafe {
             match marpa_g_start_symbol_set(self.internal, sym.0) {
-                -1 => err_code(90),
+                -1 => err_nosym(),
                 -2 => err("error setting start symbol"),
                 sym_id => Ok(Symbol(sym_id)),
             }
@@ -126,7 +152,7 @@ impl Grammar {
         match unsafe { marpa_g_symbol_is_accessible(self.internal, sym.0) } {
             1 => Ok(true),
             0 => Ok(false),
-            -1 => err_code(90),
+            -1 => err_nosym(),
             -2 => err("error checking symbol accessibility"),
             _ => panic!("unexpected error code"),
         }
@@ -136,7 +162,7 @@ impl Grammar {
         match unsafe { marpa_g_symbol_is_nullable(self.internal, sym.0) } {
             1 => Ok(true),
             0 => Ok(false),
-            -1 => err_code(90),
+            -1 => err_nosym(),
             -2 => err("error checking symbol nullability"),
             _ => panic!("unexpected error code"),
         }
@@ -146,7 +172,7 @@ impl Grammar {
         match unsafe { marpa_g_symbol_is_nulling(self.internal, sym.0) } {
             1 => Ok(true),
             0 => Ok(false),
-            -1 => err_code(90),
+            -1 => err_nosym(),
             -2 => err("error checking symbol nullness"),
             _ => panic!("unexpected error code"),
         }
@@ -156,7 +182,7 @@ impl Grammar {
         match unsafe { marpa_g_symbol_is_productive(self.internal, sym.0) } {
             1 => Ok(true),
             0 => Ok(false),
-            -1 => err_code(90),
+            -1 => err_nosym(),
             -2 => err("error checking symbol productivity"),
             _ => panic!("unexpected error code"),
         }
@@ -166,7 +192,7 @@ impl Grammar {
         match unsafe { marpa_g_symbol_is_terminal(self.internal, sym.0) } {
             1 => Ok(true),
             0 => Ok(false),
-            -1 => err_code(90),
+            -1 => err_nosym(),
             -2 => err("error checking symbol terminality"),
             _ => panic!("unexpected error code"),
         }
@@ -176,13 +202,8 @@ impl Grammar {
         match unsafe { marpa_g_symbol_is_terminal_set(self.internal, sym.0, term as i32) } {
             1 => Ok(true),
             0 => Ok(false),
-            -1 => err_code(90),
-            -2 => {
-                match self.error() {
-                    Ok(()) => err_code(-2),
-                    Err(error) => Err(error),
-                }
-            },
+            -1 => err_nosym(),
+            -2 => self.error_or("error setting symbol terminality"),
             _ => panic!("unexpected error code"),
         }
     }
@@ -203,15 +224,6 @@ impl Iterator for SymIter {
             Some(Symbol(tmp))
         } else {
             None
-        }
-    }
-}
-
-impl Drop for Grammar {
-    fn drop(&mut self) {
-        forget(self.internal);
-        unsafe {
-            marpa_g_unref(self.internal);
         }
     }
 }
