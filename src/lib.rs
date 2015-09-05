@@ -1,8 +1,6 @@
-#![allow(unused)]
-
 extern crate libmarpa_sys;
 extern crate libc;
 
-mod thin;
-mod result;
-mod desc;
+pub mod thin;
+pub mod result;
+pub mod desc;

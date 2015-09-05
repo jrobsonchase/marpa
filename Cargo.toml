@@ -5,4 +5,4 @@ authors = ["Josh Chase <jcjoshuachase@gmail.com>"]
 
 [dependencies]
 libc = "*"
-libmarpa-sys = "0.1.0"
+libmarpa-sys = "0.1.1"

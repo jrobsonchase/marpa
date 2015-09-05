@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 pub fn err_desc(code: usize) -> String {
     MARPA_ERROR_DESCRIPTION[code].2.into()
 }
