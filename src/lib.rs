@@ -387,3 +387,5 @@ pub fn marpa_r_earley_item_warning_threshold_set(r: Marpa_Recognizer,
 
 pub const MARPA_ERR_NONE: Marpa_Error_Code = 0;
 pub const MARPA_ERR_I_AM_NOT_OK: Marpa_Error_Code = 29;
+
+pub const MARPA_PROPER_SEPARATION: ::libc::c_int = 0x2;
