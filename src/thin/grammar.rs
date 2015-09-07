@@ -1,7 +1,7 @@
-use libmarpa_sys::*;
+use thin::libmarpa_sys::*;
 
-use result::{
-    MarpaResult,
+use thin::result::{
+    Result,
     err,
     err_code,
     err_nosym,
@@ -9,45 +9,23 @@ use result::{
     err_notaseq,
 };
 
+use thin::config;
+use thin::config::Config;
+
+use thin::symbol::{Symbol, SymIter};
+use thin::rule::{Rule, RuleIter};
+use thin::event::EventIter;
+
 use std::mem::forget;
 use std::ptr;
 
-use std::ops::{
-    Range,
-};
-
-pub struct Config {
-    internal: Marpa_Config,
-}
-
-impl Config {
-    pub fn new() -> Config {
-        let mut cfg = Config { internal: Marpa_Config::default() };
-
-        assert!(cfg.init() == MARPA_ERR_NONE);
-
-        cfg
-    }
-
-    fn init(&mut self) -> Marpa_Error_Code {
-        unsafe {
-            marpa_c_init(&mut self.internal)
-        }
-    }
-
-    pub fn error(&mut self) -> MarpaResult<()> {
-        unsafe {
-            match marpa_c_error(&mut self.internal, ptr::null_mut()) {
-                0 => Ok(()),
-                err if err > 0 => err_code(err),
-                _ => err("error creating grammar"),
-            }
-        }
-    }
-}
 
 pub struct Grammar {
     internal: Marpa_Grammar,
+}
+
+pub fn internal(grammar: &Grammar) -> Marpa_Grammar {
+    grammar.internal
 }
 
 impl Clone for Grammar {
@@ -67,10 +45,10 @@ impl Drop for Grammar {
 }
 
 impl Grammar {
-    pub fn new(cfg: Config) -> MarpaResult<Grammar> {
+    pub fn new(cfg: Config) -> Result<Grammar> {
         let mut cfg = cfg;
         unsafe {
-            let c_grammar = marpa_g_new(&mut cfg.internal);
+            let c_grammar = marpa_g_new(&mut config::internal(&cfg));
 
             try!(cfg.error());
 
@@ -79,21 +57,21 @@ impl Grammar {
         }
     }
 
-    fn error(&self) -> MarpaResult<()> {
+    fn error(&self) -> Result<()> {
         match unsafe { marpa_g_error(self.internal, ptr::null_mut()) } {
             0 => Ok(()),
             code => err_code(code),
         }
     }
 
-    fn error_or<S: Into<String>, T>(&self, s: S) -> MarpaResult<T> {
+    fn error_or<S: Into<String>, T>(&self, s: S) -> Result<T> {
         match self.error() {
             Ok(()) => err(s),
             Err(error) => err(error),
         }
     }
 
-    pub fn new_symbol(&mut self) -> MarpaResult<Symbol> {
+    pub fn new_symbol(&mut self) -> Result<Symbol> {
         unsafe {
             match marpa_g_symbol_new(self.internal) {
                 -2 => err("error creating new symbol"),
@@ -102,7 +80,7 @@ impl Grammar {
         }
     }
 
-    pub fn get_start_symbol(&self) -> MarpaResult<Symbol> {
+    pub fn get_start_symbol(&self) -> Result<Symbol> {
         unsafe {
             match marpa_g_start_symbol(self.internal) {
                 -1 => err_nosym(),
@@ -112,7 +90,7 @@ impl Grammar {
         }
     }
 
-    pub fn set_start_symbol(&mut self, sym: Symbol) -> MarpaResult<Symbol> {
+    pub fn set_start_symbol(&mut self, sym: Symbol) -> Result<Symbol> {
         unsafe {
             match marpa_g_start_symbol_set(self.internal, sym) {
                 -1 => err_nosym(),
@@ -122,7 +100,7 @@ impl Grammar {
         }
     }
 
-    pub fn symbols(&self) -> MarpaResult<SymIter> {
+    pub fn symbols(&self) -> Result<SymIter> {
         let max = unsafe { marpa_g_highest_symbol_id(self.internal) };
         match max {
             -2 => err("error getting highest symbol"),
@@ -130,7 +108,7 @@ impl Grammar {
         }
     }
 
-    pub fn symbol_is_accessible(&self, sym: Symbol) -> MarpaResult<bool> {
+    pub fn symbol_is_accessible(&self, sym: Symbol) -> Result<bool> {
         match unsafe { marpa_g_symbol_is_accessible(self.internal, sym) } {
             1  => Ok(true),
             0  => Ok(false),
@@ -140,7 +118,7 @@ impl Grammar {
         }
     }
 
-    pub fn symbol_is_nullable(&self, sym: Symbol) -> MarpaResult<bool> {
+    pub fn symbol_is_nullable(&self, sym: Symbol) -> Result<bool> {
         match unsafe { marpa_g_symbol_is_nullable(self.internal, sym) } {
             1 => Ok(true),
             0 => Ok(false),
@@ -150,7 +128,7 @@ impl Grammar {
         }
     }
 
-    pub fn symbol_is_nulling(&self, sym: Symbol) -> MarpaResult<bool> {
+    pub fn symbol_is_nulling(&self, sym: Symbol) -> Result<bool> {
         match unsafe { marpa_g_symbol_is_nulling(self.internal, sym) } {
             1 => Ok(true),
             0 => Ok(false),
@@ -160,7 +138,7 @@ impl Grammar {
         }
     }
 
-    pub fn symbol_is_productive(&self, sym: Symbol) -> MarpaResult<bool> {
+    pub fn symbol_is_productive(&self, sym: Symbol) -> Result<bool> {
         match unsafe { marpa_g_symbol_is_productive(self.internal, sym) } {
             1 => Ok(true),
             0 => Ok(false),
@@ -170,7 +148,7 @@ impl Grammar {
         }
     }
 
-    pub fn symbol_is_terminal(&self, sym: Symbol) -> MarpaResult<bool> {
+    pub fn symbol_is_terminal(&self, sym: Symbol) -> Result<bool> {
         match unsafe { marpa_g_symbol_is_terminal(self.internal, sym) } {
             1 => Ok(true),
             0 => Ok(false),
@@ -180,7 +158,7 @@ impl Grammar {
         }
     }
 
-    pub fn symbol_set_terminal(&mut self, sym: Symbol, term: bool) -> MarpaResult<bool> {
+    pub fn symbol_set_terminal(&mut self, sym: Symbol, term: bool) -> Result<bool> {
         match unsafe { marpa_g_symbol_is_terminal_set(self.internal, sym, term as i32) } {
             1 => Ok(true),
             0 => Ok(false),
@@ -190,7 +168,7 @@ impl Grammar {
         }
     }
 
-    pub fn new_rule(&mut self, lhs: Symbol, rhs: Vec<Symbol>) -> MarpaResult<Rule> {
+    pub fn new_rule(&mut self, lhs: Symbol, rhs: Vec<Symbol>) -> Result<Rule> {
         let rhs_ptr = rhs.as_ptr();
         let rhs_len = rhs.len() as i32;
         match unsafe { marpa_g_rule_new(self.internal, lhs, rhs_ptr as *mut i32, rhs_len) } {
@@ -199,7 +177,7 @@ impl Grammar {
         }
     }
 
-    pub fn rules(&self) -> MarpaResult<RuleIter> {
+    pub fn rules(&self) -> Result<RuleIter> {
         let max = unsafe { marpa_g_highest_rule_id(self.internal) };
         match max {
             -2 => err("error getting highest symbol"),
@@ -207,7 +185,7 @@ impl Grammar {
         }
     }
 
-    pub fn rule_is_accessible(&self, rule: Rule) -> MarpaResult<bool> {
+    pub fn rule_is_accessible(&self, rule: Rule) -> Result<bool> {
         match unsafe { marpa_g_rule_is_accessible(self.internal, rule) } {
             -1 => err_norule(),
             0 => Ok(false),
@@ -217,7 +195,7 @@ impl Grammar {
         }
     }
 
-    pub fn rule_is_nullable(&self, rule: Rule) -> MarpaResult<bool> {
+    pub fn rule_is_nullable(&self, rule: Rule) -> Result<bool> {
         match unsafe { marpa_g_rule_is_nullable(self.internal, rule) } {
             -1 => err_norule(),
             0 => Ok(false),
@@ -227,7 +205,7 @@ impl Grammar {
         }
     }
 
-    pub fn rule_is_nulling(&self, rule: Rule) -> MarpaResult<bool> {
+    pub fn rule_is_nulling(&self, rule: Rule) -> Result<bool> {
         match unsafe { marpa_g_rule_is_nulling(self.internal, rule) } {
             -1 => err_norule(),
             0 => Ok(false),
@@ -237,7 +215,7 @@ impl Grammar {
         }
     }
 
-    pub fn rule_is_loop(&self, rule: Rule) -> MarpaResult<bool> {
+    pub fn rule_is_loop(&self, rule: Rule) -> Result<bool> {
         match unsafe { marpa_g_rule_is_loop(self.internal, rule) } {
             -1 => err_norule(),
             0 => Ok(false),
@@ -247,7 +225,7 @@ impl Grammar {
         }
     }
 
-    pub fn rule_is_productive(&self, rule: Rule) -> MarpaResult<bool> {
+    pub fn rule_is_productive(&self, rule: Rule) -> Result<bool> {
         match unsafe { marpa_g_rule_is_productive(self.internal, rule) } {
             -1 => err_norule(),
             0 => Ok(false),
@@ -257,7 +235,7 @@ impl Grammar {
         }
     }
 
-    pub fn rule_lhs(&self, rule: Rule) -> MarpaResult<Symbol> {
+    pub fn rule_lhs(&self, rule: Rule) -> Result<Symbol> {
         match unsafe { marpa_g_rule_lhs(self.internal, rule) } {
             -1 => err_norule(),
             -2 => self.error_or("error getting rule lhs"),
@@ -265,14 +243,14 @@ impl Grammar {
         }
     }
 
-    pub fn rule_length(&self, rule: Rule) -> MarpaResult<i32> {
+    pub fn rule_length(&self, rule: Rule) -> Result<i32> {
         match unsafe { marpa_g_rule_length(self.internal, rule) } {
             -2 => self.error_or("error getting rule length"),
             len => Ok(len),
         }
     }
 
-    pub fn rule_rhs_ix(&self, rule: Rule, ix: i32) -> MarpaResult<Symbol> {
+    pub fn rule_rhs_ix(&self, rule: Rule, ix: i32) -> Result<Symbol> {
         match unsafe { marpa_g_rule_rhs(self.internal, rule, ix) } {
             -1 => err_norule(),
             -2 => self.error_or("error getting rhs ix"),
@@ -280,7 +258,7 @@ impl Grammar {
         }
     }
 
-    pub fn rule_rhs(&self, rule: Rule) -> MarpaResult<Vec<Symbol>> {
+    pub fn rule_rhs(&self, rule: Rule) -> Result<Vec<Symbol>> {
         let len = try!(self.rule_length(rule));
         let mut syms: Vec<Symbol> = vec![];
         for id in (0..len) {
@@ -291,7 +269,7 @@ impl Grammar {
         Ok(syms)
     }
 
-    pub fn rule_is_proper_separation(&self, rule: Rule) -> MarpaResult<bool> {
+    pub fn rule_is_proper_separation(&self, rule: Rule) -> Result<bool> {
         match unsafe { marpa_g_rule_is_proper_separation(self.internal, rule) } {
             -1 => err_norule(),
             0 => Ok(false),
@@ -301,7 +279,7 @@ impl Grammar {
         }
     }
 
-    pub fn sequence_min(&self, rule: Rule) -> MarpaResult<i32> {
+    pub fn sequence_min(&self, rule: Rule) -> Result<i32> {
         match unsafe { marpa_g_sequence_min(self.internal, rule) } {
             -1 => err_notaseq(),
             -2 => self.error_or("error getting sequence min"),
@@ -309,7 +287,7 @@ impl Grammar {
         }
     }
 
-    pub fn rule_is_sequence(&self, rule: Rule) -> MarpaResult<bool> {
+    pub fn rule_is_sequence(&self, rule: Rule) -> Result<bool> {
         match unsafe { marpa_g_sequence_min(self.internal, rule) } {
             -1 => Ok(false),
             -2 => self.error_or("error getting if sequence"),
@@ -322,7 +300,7 @@ impl Grammar {
                         rhs: Symbol,
                         sep: Symbol,
                         nonempty: bool,
-                        proper: bool) -> MarpaResult<Rule> {
+                        proper: bool) -> Result<Rule> {
         match unsafe {
             marpa_g_sequence_new(self.internal,
                                  lhs, rhs, sep,
@@ -334,7 +312,7 @@ impl Grammar {
         }
     }
 
-    pub fn sequence_separator(&self, rule: Rule) -> MarpaResult<Rule> {
+    pub fn sequence_separator(&self, rule: Rule) -> Result<Rule> {
         match unsafe { marpa_g_sequence_separator(self.internal, rule) } {
             -1 => err("Rule has no separator"),
             -2 => self.error_or("error getting sequence separator"),
@@ -342,7 +320,7 @@ impl Grammar {
         }
     }
 
-    pub fn symbol_is_counted(&self, sym: Symbol) -> MarpaResult<bool> {
+    pub fn symbol_is_counted(&self, sym: Symbol) -> Result<bool> {
         match unsafe { marpa_g_symbol_is_counted(self.internal, sym) } {
             -1 => err_nosym(),
             -2 => self.error_or("error getting if symbol is counted"),
@@ -352,12 +330,12 @@ impl Grammar {
         }
     }
 
-    pub fn rule_rank_set(&mut self, rule: Rule, rank: i32) -> MarpaResult<()> {
+    pub fn rule_rank_set(&mut self, rule: Rule, rank: i32) -> Result<()> {
         unsafe { marpa_g_rule_rank_set(self.internal, rule, rank) };
         self.error()
     }
 
-    pub fn rule_rank_get(&self, rule: Rule) -> MarpaResult<i32> {
+    pub fn rule_rank_get(&self, rule: Rule) -> Result<i32> {
         let rank = unsafe { marpa_g_rule_rank(self.internal, rule) };
         if rank == -2 {
             match self.error() {
@@ -369,7 +347,7 @@ impl Grammar {
         }
     }
 
-    pub fn rule_null_high_set(&mut self, rule: Rule, high: bool) -> MarpaResult<()> {
+    pub fn rule_null_high_set(&mut self, rule: Rule, high: bool) -> Result<()> {
         match unsafe { marpa_g_rule_null_high_set(self.internal, rule, high as i32) } {
             -1 => err_norule(),
             -2 => self.error_or("error setting null high"),
@@ -378,7 +356,7 @@ impl Grammar {
         }
     }
 
-    pub fn rule_null_high(&mut self, rule: Rule) -> MarpaResult<bool> {
+    pub fn rule_null_high(&mut self, rule: Rule) -> Result<bool> {
         match unsafe { marpa_g_rule_null_high(self.internal, rule) } {
             -1 => err_norule(),
             -2 => self.error_or("error setting null high"),
@@ -388,28 +366,28 @@ impl Grammar {
         }
     }
 
-    pub fn completion_symbol_activate(&mut self, sym: Symbol, reactivate: bool) -> MarpaResult<()> {
+    pub fn completion_symbol_activate(&mut self, sym: Symbol, reactivate: bool) -> Result<()> {
         match unsafe { marpa_g_completion_symbol_activate(self.internal, sym, reactivate as i32) } {
             -2 => self.error_or("error setting symbol to reactivate"),
             _ => Ok(()),
         }
     }
 
-    pub fn nulled_symbol_activate(&mut self, sym: Symbol, reactivate: bool) -> MarpaResult<()> {
+    pub fn nulled_symbol_activate(&mut self, sym: Symbol, reactivate: bool) -> Result<()> {
         match unsafe { marpa_g_nulled_symbol_activate(self.internal, sym, reactivate as i32) } {
             -2 => self.error_or("error setting symbol to reactivate"),
             _ => Ok(()),
         }
     }
 
-    pub fn prediction_symbol_activate(&mut self, sym: Symbol, reactivate: bool) -> MarpaResult<()> {
+    pub fn prediction_symbol_activate(&mut self, sym: Symbol, reactivate: bool) -> Result<()> {
         match unsafe { marpa_g_prediction_symbol_activate(self.internal, sym, reactivate as i32) } {
             -2 => self.error_or("error setting symbol to reactivate"),
             _ => Ok(()),
         }
     }
 
-    pub fn symbol_is_completion_event(&mut self, sym: Symbol) -> MarpaResult<bool> {
+    pub fn symbol_is_completion_event(&mut self, sym: Symbol) -> Result<bool> {
         match unsafe { marpa_g_symbol_is_completion_event(self.internal, sym) } {
             -1 => err_nosym(),
             -2 => self.error_or("error getting completion event"),
@@ -419,7 +397,7 @@ impl Grammar {
         }
     }
 
-    pub fn symbol_is_completion_event_set(&mut self, sym: Symbol, val: bool) -> MarpaResult<()> {
+    pub fn symbol_is_completion_event_set(&mut self, sym: Symbol, val: bool) -> Result<()> {
         match unsafe { marpa_g_symbol_is_completion_event_set(self.internal, sym, val as i32) } {
             -1 => err_nosym(),
             -2 => self.error_or("error setting completion event"),
@@ -429,7 +407,7 @@ impl Grammar {
         }
     }
 
-    pub fn symbol_is_nulled_event(&mut self, sym: Symbol) -> MarpaResult<bool> {
+    pub fn symbol_is_nulled_event(&mut self, sym: Symbol) -> Result<bool> {
         match unsafe { marpa_g_symbol_is_nulled_event(self.internal, sym) } {
             -1 => err_nosym(),
             -2 => self.error_or("error getting nulled event"),
@@ -439,7 +417,7 @@ impl Grammar {
         }
     }
 
-    pub fn symbol_is_nulled_event_set(&mut self, sym: Symbol, val: bool) -> MarpaResult<()> {
+    pub fn symbol_is_nulled_event_set(&mut self, sym: Symbol, val: bool) -> Result<()> {
         match unsafe { marpa_g_symbol_is_nulled_event_set(self.internal, sym, val as i32) } {
             -1 => err_nosym(),
             -2 => self.error_or("error setting nulled event"),
@@ -449,7 +427,7 @@ impl Grammar {
         }
     }
 
-    pub fn symbol_is_prediction_event(&mut self, sym: Symbol) -> MarpaResult<bool> {
+    pub fn symbol_is_prediction_event(&mut self, sym: Symbol) -> Result<bool> {
         match unsafe { marpa_g_symbol_is_prediction_event(self.internal, sym) } {
             -1 => err_nosym(),
             -2 => self.error_or("error getting prediction event"),
@@ -459,7 +437,7 @@ impl Grammar {
         }
     }
 
-    pub fn symbol_is_prediction_event_set(&mut self, sym: Symbol, val: bool) -> MarpaResult<()> {
+    pub fn symbol_is_prediction_event_set(&mut self, sym: Symbol, val: bool) -> Result<()> {
         match unsafe { marpa_g_symbol_is_prediction_event_set(self.internal, sym, val as i32) } {
             -1 => err_nosym(),
             -2 => self.error_or("error setting prediction event"),
@@ -468,24 +446,51 @@ impl Grammar {
             err => panic!("unexpected error code: {}", err)
         }
     }
+
+    pub fn events(&self) -> Result<EventIter> {
+        unsafe {
+            match marpa_g_event_count(self.internal) {
+                -2 => self.error_or("error getting event count"),
+                count => {
+                    Ok(EventIter::new(count, self.clone()))
+                }
+            }
+        }
+    }
+
+    pub fn precompute(&mut self) -> Result<()> {
+        match unsafe { marpa_g_precompute(self.internal) } {
+            -2 => self.error_or("error precomputing grammar"),
+            i if i >= 0 => Ok(()),
+            i => panic!("unexpected error code: {}", i),
+        }
+    }
+
+    pub fn is_precomputed(&self) -> Result<bool> {
+        match unsafe { marpa_g_is_precomputed(self.internal) } {
+            -2 => self.error_or("error getting is_precomputed"),
+            0 => Ok(false),
+            1 => Ok(true),
+            err => panic!("unexpected error code: {}", err),
+        }
+    }
+
+    pub fn has_cycle(&self) -> Result<bool> {
+        match unsafe { marpa_g_has_cycle(self.internal) } {
+            -2 => self.error_or("error getting has_cycle"),
+            0 => Ok(false),
+            1 => Ok(true),
+            err => panic!("unexpected error code: {}", err),
+        }
+    }
 }
-
-pub type SymIter = Range<Marpa_Symbol_ID>;
-
-pub type RuleIter = Range<Marpa_Rule_ID>;
-
-pub type Symbol = Marpa_Symbol_ID;
-
-pub type Rule = Marpa_Rule_ID;
 
 #[cfg(test)]
 mod tests {
-    use thin::{
-        Config,
-        Grammar,
-        Symbol,
-        Rule,
-    };
+    use thin::grammar::Grammar;
+    use thin::rule::Rule;
+    use thin::symbol::Symbol;
+    use thin::config::Config;
 
     fn new_grammar() -> Grammar {
         Grammar::new(Config::new()).unwrap()

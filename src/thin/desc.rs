@@ -144,7 +144,7 @@ const MARPA_STEP_TYPE_NAME: &'static [MarpaDescription] = &[
 
 #[cfg(test)]
 mod tests {
-    use desc;
+    use thin::desc;
 
     #[test]
     fn test_not_ok() {
