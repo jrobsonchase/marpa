@@ -1,6 +1,6 @@
 [package]
 name = "libmarpa-sys"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Josh Chase <jcjoshuachase@gmail.com>"]
 build = "build.rs"
 description = "Low-level bindings to the libmarpa parsing engine"
