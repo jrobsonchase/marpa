@@ -1,13 +1,6 @@
 use thin::libmarpa_sys::*;
 
-use thin::result::{
-    Result,
-    err,
-    err_code,
-    err_nosym,
-    err_norule,
-    err_notaseq,
-};
+use thin::result::*;
 
 use thin::config;
 use thin::config::Config;
@@ -16,7 +9,6 @@ use thin::symbol::{Symbol, SymIter};
 use thin::rule::{Rule, RuleIter};
 use thin::event::EventIter;
 
-use std::mem::forget;
 use std::ptr;
 
 
@@ -37,7 +29,6 @@ impl Clone for Grammar {
 
 impl Drop for Grammar {
     fn drop(&mut self) {
-        forget(self.internal);
         unsafe {
             marpa_g_unref(self.internal);
         }
@@ -45,7 +36,19 @@ impl Drop for Grammar {
 }
 
 impl Grammar {
-    pub fn new(cfg: Config) -> Result<Grammar> {
+    pub fn new() -> Result<Grammar> {
+        let mut cfg = Config::new();
+        unsafe {
+            let c_grammar = marpa_g_new(&mut config::internal(&cfg));
+
+            try!(cfg.error());
+
+            assert!(marpa_g_force_valued(c_grammar) >= 0);
+            Ok(Grammar { internal: c_grammar })
+        }
+    }
+
+    pub fn with_config(cfg: Config) -> Result<Grammar> {
         let mut cfg = cfg;
         unsafe {
             let c_grammar = marpa_g_new(&mut config::internal(&cfg));
@@ -57,14 +60,20 @@ impl Grammar {
         }
     }
 
+    // either return the error result from the grammar or an empty Ok
     fn error(&self) -> Result<()> {
         match unsafe { marpa_g_error(self.internal, ptr::null_mut()) } {
             0 => Ok(()),
-            code => err_code(code),
+            code => {
+                unsafe { marpa_g_error_clear(self.internal) };
+                err_code(code)
+            },
         }
     }
 
-    fn error_or<S: Into<String>, T>(&self, s: S) -> Result<T> {
+    // either gets the error code from the grammar, or, in the event that there
+    // is no error code, provide an error from a string.
+    pub fn error_or<S: Into<String>, T>(&self, s: S) -> Result<T> {
         match self.error() {
             Ok(()) => err(s),
             Err(error) => err(error),
@@ -72,40 +81,37 @@ impl Grammar {
     }
 
     pub fn new_symbol(&mut self) -> Result<Symbol> {
-        unsafe {
-            match marpa_g_symbol_new(self.internal) {
-                -2 => err("error creating new symbol"),
-                sym => Ok(sym),
-            }
+        match unsafe { marpa_g_symbol_new(self.internal) } {
+            -2 => self.error_or("error creating new symbol"),
+            sym => Ok(sym),
         }
     }
 
     pub fn get_start_symbol(&self) -> Result<Symbol> {
-        unsafe {
-            match marpa_g_start_symbol(self.internal) {
-                -1 => err_nosym(),
-                -2 => err("error getting start symbol"),
-                sym_id => Ok(sym_id),
-            }
+        match unsafe { marpa_g_start_symbol(self.internal) } {
+            -1 => err_nosym(),
+            -2 => self.error_or("error getting start symbol"),
+            sym_id => Ok(sym_id),
         }
     }
 
     pub fn set_start_symbol(&mut self, sym: Symbol) -> Result<Symbol> {
-        unsafe {
-            match marpa_g_start_symbol_set(self.internal, sym) {
-                -1 => err_nosym(),
-                -2 => err("error setting start symbol"),
-                sym_id => Ok(sym_id),
-            }
+        match unsafe { marpa_g_start_symbol_set(self.internal, sym) } {
+            -1 => err_nosym(),
+            -2 => self.error_or("error setting start symbol"),
+            sym_id => Ok(sym_id),
+        }
+    }
+
+    pub fn num_symbols(&self) -> Result<i32> {
+        match unsafe { marpa_g_highest_symbol_id(self.internal) } {
+            -2 => self.error_or("error getting highest symbol"),
+            max => Ok(max+1),
         }
     }
 
     pub fn symbols(&self) -> Result<SymIter> {
-        let max = unsafe { marpa_g_highest_symbol_id(self.internal) };
-        match max {
-            -2 => err("error getting highest symbol"),
-            max => Ok((0..max+1)),
-        }
+        Ok((0..try!(self.num_symbols())))
     }
 
     pub fn symbol_is_accessible(&self, sym: Symbol) -> Result<bool> {
@@ -113,7 +119,7 @@ impl Grammar {
             1  => Ok(true),
             0  => Ok(false),
             -1 => err_nosym(),
-            -2 => err("error checking symbol accessibility"),
+            -2 => self.error_or("error checking symbol accessibility"),
             _  => panic!("unexpected error code"),
         }
     }
@@ -133,7 +139,7 @@ impl Grammar {
             1 => Ok(true),
             0 => Ok(false),
             -1 => err_nosym(),
-            -2 => err("error checking symbol nullness"),
+            -2 => self.error_or("error checking symbol nullness"),
             _ => panic!("unexpected error code"),
         }
     }
@@ -143,7 +149,7 @@ impl Grammar {
             1 => Ok(true),
             0 => Ok(false),
             -1 => err_nosym(),
-            -2 => err("error checking symbol productivity"),
+            -2 => self.error_or("error checking symbol productivity"),
             _ => panic!("unexpected error code"),
         }
     }
@@ -153,7 +159,7 @@ impl Grammar {
             1 => Ok(true),
             0 => Ok(false),
             -1 => err_nosym(),
-            -2 => err("error checking symbol terminality"),
+            -2 => self.error_or("error checking symbol terminality"),
             _ => panic!("unexpected error code"),
         }
     }
@@ -168,7 +174,7 @@ impl Grammar {
         }
     }
 
-    pub fn new_rule(&mut self, lhs: Symbol, rhs: Vec<Symbol>) -> Result<Rule> {
+    pub fn new_rule(&mut self, lhs: Symbol, rhs: &[Symbol]) -> Result<Rule> {
         let rhs_ptr = rhs.as_ptr();
         let rhs_len = rhs.len() as i32;
         match unsafe { marpa_g_rule_new(self.internal, lhs, rhs_ptr as *mut i32, rhs_len) } {
@@ -180,7 +186,7 @@ impl Grammar {
     pub fn rules(&self) -> Result<RuleIter> {
         let max = unsafe { marpa_g_highest_rule_id(self.internal) };
         match max {
-            -2 => err("error getting highest symbol"),
+            -2 => self.error_or("error getting highest symbol"),
             max => Ok((0..max+1)),
         }
     }
@@ -314,7 +320,7 @@ impl Grammar {
 
     pub fn sequence_separator(&self, rule: Rule) -> Result<Rule> {
         match unsafe { marpa_g_sequence_separator(self.internal, rule) } {
-            -1 => err("Rule has no separator"),
+            -1 => self.error_or("Rule has no separator"),
             -2 => self.error_or("error getting sequence separator"),
             ruleid => Ok(ruleid),
         }
@@ -490,10 +496,10 @@ mod tests {
     use thin::grammar::Grammar;
     use thin::rule::Rule;
     use thin::symbol::Symbol;
-    use thin::config::Config;
+    use thin::event::Event;
 
     fn new_grammar() -> Grammar {
-        Grammar::new(Config::new()).unwrap()
+        Grammar::new().unwrap()
     }
 
     #[test]
@@ -518,9 +524,9 @@ mod tests {
             g.new_symbol().unwrap();
         }
 
-        g.new_rule(0.into(), vec![1, 2]).unwrap();
-        g.new_rule(1.into(), vec![3, 4]).unwrap();
-        g.new_rule(2.into(), vec![]).unwrap();
+        g.new_rule(0.into(), &[1, 2]).unwrap();
+        g.new_rule(1.into(), &[3, 4]).unwrap();
+        g.new_rule(2.into(), &[]).unwrap();
 
         let ids: Vec<i32> = vec![0,1,2];
 
@@ -530,7 +536,7 @@ mod tests {
 
     #[test]
     fn set_terminal() {
-        let mut g = Grammar::new(Config::new()).unwrap();
+        let mut g = Grammar::new().unwrap();
         let s = g.new_symbol().unwrap();
         assert!(g.symbol_is_terminal(s).unwrap() == false);
         g.symbol_set_terminal(s, true).unwrap();
@@ -544,11 +550,22 @@ mod tests {
 
     #[test]
     fn set_start() {
-        let mut g: Grammar = Grammar::new(Config::new()).unwrap();
+        let mut g: Grammar = Grammar::new().unwrap();
 
         let sym: Symbol = g.new_symbol().unwrap();
         assert!(g.set_start_symbol(sym).unwrap() == sym);
 
         assert!(g.get_start_symbol().unwrap() == sym);
+    }
+
+    #[test]
+    fn precompute() {
+        let mut g: Grammar = new_grammar();
+        let start = g.new_symbol().unwrap();
+        g.set_start_symbol(start).unwrap();
+        g.new_rule(start, &[]).unwrap();
+        g.precompute().unwrap();
+        assert!(g.symbol_is_nulling(start).unwrap());
+        assert!(g.events().unwrap().collect::<Vec<Event>>().len() == 0);
     }
 }

@@ -27,3 +27,7 @@ pub fn err_norule<T>() -> Result<T> {
 pub fn err_notaseq<T>() -> Result<T> {
     err_code(99)
 }
+
+pub fn err_rnotstarted<T>() -> Result<T> {
+    err_code(61)
+}

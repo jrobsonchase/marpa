@@ -9,6 +9,7 @@ use std::ops::Range;
 use std::mem;
 
 
+#[derive(Debug)]
 pub enum Event {
     None,
     CountedNullable(Symbol),
