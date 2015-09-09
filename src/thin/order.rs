@@ -49,6 +49,45 @@ impl Order {
         }
     }
 
+    pub fn ambiguity_metric(&self) -> Result<i32> {
+        match unsafe { marpa_o_ambiguity_metric(self.internal) } {
+            -2 => self.grammar.error_or("error getting order ambiguity metric"),
+            m if m >= 1 => Ok(m),
+            e => panic!("unexpected error code: {}", e),
+        }
+    }
 
-    //TODO: the rest of these
+    pub fn is_null(&self) -> Result<bool> {
+        match unsafe { marpa_o_is_null(self.internal) } {
+            -2 => self.grammar.error_or("error getting order is_null"),
+            0 => Ok(false),
+            1 => Ok(true),
+            e => panic!("unexpected error code: {}", e),
+        }
+    }
+
+    pub fn high_rank_only_set(&mut self, high_only: bool) -> Result<()> {
+        match unsafe { marpa_o_high_rank_only_set(self.internal, high_only as i32) } {
+            -2 => self.grammar.error_or("error setting high rank only"),
+            0 | 1 => Ok(()),
+            e => panic!("unexpected error code: {}", e),
+        }
+    }
+
+    pub fn high_rank_only(&self) -> Result<bool> {
+        match unsafe { marpa_o_high_rank_only(self.internal) } {
+            -2 => self.grammar.error_or("error getting high rank only"),
+            0 => Ok(false),
+            1 => Ok(true),
+            e => panic!("unexpected error code: {}", e),
+        }
+    }
+
+    pub fn rank(&mut self) -> Result<()> {
+        match unsafe { marpa_o_rank(self.internal) } {
+            -2 => self.grammar.error_or("error ranking order"),
+            i if i >= 0 => Ok(()),
+            e => panic!("unexpected error code: {}", e),
+        }
+    }
 }

@@ -1,27 +1,49 @@
 extern crate libmarpa_sys;
 extern crate libc;
 
-pub mod config;
-pub mod grammar;
-pub mod recognizer;
-pub mod bocage;
-pub mod order;
+mod config;
+mod grammar;
+mod recognizer;
+mod bocage;
+mod order;
+mod tree;
+mod value;
 
-pub mod symbol;
-pub mod rule;
-pub mod event;
-pub mod earley;
-pub mod progress;
+mod symbol;
+mod rule;
+mod event;
+mod earley;
+mod progress;
+mod step;
 
-pub mod result;
-pub mod desc;
+mod result;
+mod desc;
 
+pub use thin::rule::{
+    Rule,
+    RuleIter,
+};
+pub use thin::symbol::{
+    Symbol,
+    SymIter,
+    TokValue,
+};
+pub use thin::config::Config;
 pub use thin::grammar::Grammar;
 pub use thin::recognizer::Recognizer;
 pub use thin::bocage::Bocage;
 pub use thin::order::Order;
+pub use thin::tree::{
+    Tree,
+    TreeIter,
+};
+pub use thin::value::Value;
 
 pub use thin::event::{
     Event,
     EventIter,
 };
+
+pub use thin::step::Step;
+
+pub use thin::result::Result;

@@ -2,15 +2,18 @@ use thin::libmarpa_sys::*;
 
 use thin::result::*;
 
-use thin::config;
-use thin::config::Config;
+use thin::{
+    Config,
+    Symbol,
+    SymIter,
+    Rule,
+    RuleIter,
+    EventIter,
+};
 
-use thin::symbol::{Symbol, SymIter};
-use thin::rule::{Rule, RuleIter};
-use thin::event::EventIter;
+use thin::config;
 
 use std::ptr;
-
 
 pub struct Grammar {
     internal: Marpa_Grammar,
