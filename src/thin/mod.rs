@@ -35,7 +35,6 @@ pub use thin::bocage::Bocage;
 pub use thin::order::Order;
 pub use thin::tree::{
     Tree,
-    TreeIter,
 };
 pub use thin::value::Value;
 

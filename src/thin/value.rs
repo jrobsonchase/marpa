@@ -24,7 +24,7 @@ impl Value {
         let grammar = tree::grammar(&t);
         match unsafe { marpa_v_new(t_internal) } {
             n if n == ptr::null_mut() => grammar.error_or("error creating value"),
-            t => Ok( Value{ internal: t, grammar: grammar }),
+            v => Ok( Value{ internal: v, grammar: grammar }),
         }
     }
 }
