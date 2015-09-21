@@ -10,4 +10,5 @@ documentation = "https://pursuit92.github.io/marpa"
 [dependencies]
 libc = "*"
 regex = "*"
+regex-syntax = "0.2.2"
 libmarpa-sys = "0.1.2"

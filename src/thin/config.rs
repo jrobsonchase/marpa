@@ -1,7 +1,7 @@
 use thin::libmarpa_sys::*;
 
 use std::ptr;
-use thin::result::*;
+use result::*;
 
 pub struct Config {
     internal: Marpa_Config,

@@ -18,6 +18,8 @@ pub struct Tree {
     grammar: Grammar,
 }
 
+result_from!(Tree, Order);
+
 pub fn internal(tree: &Tree) -> Marpa_Tree {
     tree.internal
 }

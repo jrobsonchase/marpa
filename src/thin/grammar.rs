@@ -1,6 +1,6 @@
 use thin::libmarpa_sys::*;
 
-use thin::result::*;
+use result::*;
 
 use thin::{
     Config,
@@ -570,5 +570,11 @@ mod tests {
         g.precompute().unwrap();
         assert!(g.symbol_is_nulling(start).unwrap());
         assert!(g.events().unwrap().collect::<Vec<Event>>().len() == 0);
+    }
+}
+
+impl From<Config> for Result<Grammar> {
+    fn from(other: Config) -> Self {
+        Grammar::with_config(other)
     }
 }

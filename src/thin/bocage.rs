@@ -7,7 +7,7 @@ use thin::recognizer as r;
 
 use thin::earley::*;
 
-use thin::result::*;
+use result::*;
 
 use std::ptr;
 
@@ -103,3 +103,5 @@ mod tests {
         let _ = Bocage::new(r).unwrap();
     }
 }
+
+result_from!(Bocage, Recognizer);

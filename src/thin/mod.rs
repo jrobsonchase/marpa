@@ -1,6 +1,9 @@
 extern crate libmarpa_sys;
 extern crate libc;
 
+#[macro_use]
+mod macros;
+
 mod config;
 mod grammar;
 mod recognizer;
@@ -15,9 +18,6 @@ mod event;
 mod earley;
 mod progress;
 mod step;
-
-mod result;
-mod desc;
 
 pub use thin::rule::{
     Rule,
@@ -45,4 +45,4 @@ pub use thin::event::{
 
 pub use thin::step::Step;
 
-pub use thin::result::Result;
+pub use result::Result;

@@ -9,7 +9,7 @@ use thin::event::EventIter;
 
 use thin::earley::*;
 
-use thin::result::*;
+use result::*;
 
 use thin::progress::*;
 
@@ -23,6 +23,8 @@ pub struct Recognizer {
     // in order to read error codes.
     grammar: Grammar,
 }
+
+result_from!(Recognizer, Grammar);
 
 pub fn internal(recognizer: &Recognizer) -> Marpa_Recognizer {
     recognizer.internal

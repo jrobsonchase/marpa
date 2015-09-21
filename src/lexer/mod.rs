@@ -1,93 +1,176 @@
 extern crate regex;
+extern crate regex_syntax;
 
 use self::regex::Regex;
 
-use std::borrow::Borrow;
+use self::regex_syntax::Expr;
+
+use std::slice::Iter;
 
 pub struct Lexer {
-    input: String,
+    re: Regex,
     tokens: Vec<Token>,
-    tok_re: Vec<Regex>,
+    pos: usize,
 }
 
-#[derive(Copy,Clone)]
-pub struct Token {
-    start: usize,
-    end: usize,
-    ty: i32,
+#[derive(Default)]
+pub struct LexGen {
+    re_strings: Vec<String>,
 }
 
-impl Lexer {
-    pub fn new<S: Into<String>>(s: S) -> Lexer {
-        Lexer{ input: s.into(), tokens: Vec::new(), tok_re: Vec::new() }
+impl LexGen {
+    pub fn new() -> LexGen {
+        LexGen::default()
     }
 
     pub fn new_re(&mut self, s: &str) -> Result<(), regex::Error> {
-        self.tok_re.push(try!(Regex::new(s)));
+        self.re_strings.push(try!(remove_captures(s)));
         Ok(())
     }
 
-    pub fn token(&self, ix: usize) -> Option<&Token> {
-        self.tokens.get(ix)
-    }
-
-    pub fn token_text(&self, tok: Token) -> &str {
-        let borrowed: &str = self.input.borrow();
-        &borrowed[tok.start .. tok.end]
-    }
-
-    fn remaining_text(&self) -> &str {
-        match self.tokens.last() {
-            None => self.input.borrow(),
-            Some(tok) => {
-                let borrowed: &str = self.input.borrow();
-                &borrowed[tok.end..]
-            },
+    pub fn compile(&self) -> Lexer {
+        let mut re_buf = String::new();
+        for re in self.re_strings.iter() {
+            re_buf.push('(');
+            re_buf.push('^');
+            re_buf.push_str(re);
+            re_buf.push(')');
+            re_buf.push('|');
         }
+
+        re_buf.pop();
+
+        println!("re_buf: {}", re_buf);
+
+        Lexer { re: Regex::new(&re_buf).unwrap(), tokens: Vec::new(), pos: 0 }
+    }
+}
+
+#[derive(Copy,Clone,Debug,PartialEq,Eq)]
+/// A lexed token - includes a start, end, and type. The type refers to
+// the regexp index that matched the token.
+pub struct Token {
+    pub start: usize,
+    pub end: usize,
+    pub ty: usize,
+}
+
+
+impl Lexer {
+    pub fn token(&self, ix: usize) -> Option<Token> {
+        self.tokens.get(ix - 1).map(|t| *t)
     }
 
-    fn new_token(&mut self, end: usize, ty: i32) -> (Token, i32) {
+    pub fn tokens(&self) -> Iter<Token> {
+        self.tokens.iter()
+    }
+
+    pub fn token_text<'a>(&self, tok: Token, input: &'a str) -> &'a str {
+        &input[tok.start .. tok.end]
+    }
+
+    fn remaining_text<'a>(&self, input: &'a str) -> &'a str {
+        &input[self.pos..]
+    }
+
+    fn new_token(&mut self, len: usize, ty: usize) -> (Token, usize) {
         let val = self.tokens.len();
-        let start = if val > 0 { self.tokens.last().unwrap().end } else { 0 };
-        self.tokens.push(Token{ start: start, end: end, ty: ty });
-        (self.tokens.last().unwrap().clone(), val as i32)
+        let start = self.pos;
+        self.pos += len;
+        let tok = Token{ start: start, end: self.pos, ty: ty };
+        self.tokens.push(tok);
+        (tok, val + 1)
     }
 
-    pub fn next_token(&mut self) -> Option<(Token, i32)> {
-        for i in (0..self.tok_re.len()) {
-            match self.tok_re.get(i).unwrap().find(self.remaining_text()) {
-                None => {},
-                Some((_, end)) => return Some(self.new_token(end, i as i32)),
-            }
-        }
-        None
-    }
+    /// Maybe return a token. If there is a successful match, return the
+    /// the next token and its value index, otherwise, return None.
+    pub fn next_token(&mut self, input: &str) -> Option<(Token, usize)> {
+        { // limit length of self borrow for cap
+            let cap = self.re.captures(self.remaining_text(input));
 
-    pub fn next_token_hinted<I: IntoIterator<Item=usize>>(&mut self, it: I) -> Option<(Token, i32)> {
-        for ix in it {
-            if ix < self.tok_re.len() {
-                match self.tok_re.get(ix).unwrap().find(self.remaining_text()) {
-                    None => {},
-                    Some((_, end)) => return Some(self.new_token(end, ix as i32)),
+            let caps = if let Some(caps) = cap {
+                caps
+            } else {
+                return None;
+            };
+
+            for i in (1..caps.len()) {
+                if let Some((_, len)) = caps.pos(i) {
+                    return Some(self.new_token(len, i-1))
                 }
             }
         }
+
         None
     }
+}
 
-    pub fn tokens<'a>(&'a mut self) -> TokIter<'a> {
-        TokIter{lex: self}
+fn remove_captures_expr(expr: &mut Expr) {
+    match expr {
+        &mut Expr::Group{ ref mut i, ref mut e, ref mut name} => {
+            i.take();
+            name.take();
+            remove_captures_expr(e);
+        }
+        &mut Expr::Repeat{ ref mut e, r: _, greedy: _ } => {
+            remove_captures_expr(e);
+        }
+
+        &mut Expr::Concat(ref mut exprs) | &mut Expr::Alternate(ref mut exprs) => {
+            for e in exprs.iter_mut() {
+                remove_captures_expr(e);
+            }
+        }
+        _ => {},
     }
 }
 
-pub struct TokIter<'a> {
-    lex: &'a mut Lexer,
+fn remove_captures(expr: &str) -> Result<String, regex_syntax::Error> {
+    let mut r_expr = try!(Expr::parse(expr));
+    remove_captures_expr(&mut r_expr);
+    Ok(format!("{}", r_expr))
 }
 
-impl<'a> Iterator for TokIter<'a> {
-    type Item = (Token, i32);
+#[cfg(test)]
+mod tests {
+    extern crate regex_syntax;
 
-    fn next(&mut self) -> Option<Self::Item> {
-        self.lex.next_token()
+    use lexer::LexGen;
+
+    #[test]
+    fn asdf() {
+        let input = "this is a test";
+        let mut lex = {
+            let mut gen = LexGen::new();
+            for i in vec![r"is", r"test", r"this", r"a|b", r" "] {
+                gen.new_re(i).unwrap();
+            }
+            gen.compile()
+        };
+
+        while let Some(_) = lex.next_token(input) {
+        }
+
+        let types: Vec<usize> = lex.tokens().map(|t| t.ty).collect();
+        let texts: Vec<&str> = lex.tokens().map(|t| lex.token_text(*t, input)).collect();
+
+        assert!(types == vec![
+            2,
+            4,
+            0,
+            4,
+            3,
+            4,
+            1,
+            ]);
+        assert!(texts == vec![
+            "this",
+            " ",
+            "is",
+            " ",
+            "a",
+            " ",
+            "test",
+            ]);
     }
 }

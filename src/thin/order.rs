@@ -5,7 +5,7 @@ use thin::grammar::Grammar;
 use thin::bocage::Bocage;
 use thin::bocage as b;
 
-use thin::result::*;
+use result::*;
 
 use std::ptr;
 
@@ -15,6 +15,8 @@ pub struct Order {
     // in order to read error codes.
     grammar: Grammar,
 }
+
+result_from!(Order, Bocage);
 
 pub fn internal(order: &Order) -> Marpa_Order {
     order.internal
