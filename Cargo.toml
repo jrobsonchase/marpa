@@ -1,6 +1,6 @@
 [package]
 name = "marpa"
-version = "0.1.4"
+version = "0.1.5"
 authors = ["Josh Chase <jcjoshuachase@gmail.com>"]
 description = "Safe bindings to the libmarpa parsing engine"
 license = "MIT"
@@ -8,7 +8,7 @@ repository = "https://github.com/Pursuit92/marpa"
 documentation = "https://pursuit92.github.io/marpa"
 
 [dependencies]
-libc = "*"
-regex = "*"
-regex-syntax = "0.2.2"
-libmarpa-sys = "0.1.2"
+libc = "0.1"
+regex = "0.1"
+regex-syntax = "0.2"
+libmarpa-sys = "0.1"
