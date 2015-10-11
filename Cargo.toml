@@ -1,6 +1,6 @@
 [package]
 name = "marpa"
-version = "0.1.5"
+version = "0.2.0"
 authors = ["Josh Chase <jcjoshuachase@gmail.com>"]
 description = "Safe bindings to the libmarpa parsing engine"
 license = "MIT"
