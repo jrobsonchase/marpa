@@ -1,4 +1,4 @@
-use lexer::Lexer;
+use lexer::token_source::TokenSource;
 
 use thin::*;
 
@@ -35,18 +35,18 @@ impl MarpaState {
     }
 }
 
-pub struct Parser {
-    lex: Lexer,
-    parse: MarpaState,
+pub struct Parser<T: TokenSource> {
+    state: MarpaState,
+    tokens: T
 }
 
-impl Parser {
-    pub fn new(lex: Lexer, grammar: Grammar) -> Self {
-        Parser{ lex: lex, parse: G(grammar) }
+impl<T: TokenSource> Parser<T> {
+    pub fn new(tokens: T, grammar: Grammar) -> Self {
+        Parser{ tokens: tokens, state: G(grammar) }
     }
 
     fn add_rule(&mut self, lhs: Symbol, rhs: &[Symbol]) -> Result<Rule> {
-        match self.parse {
+        match self.state {
             G(ref mut g) => {
                 g.new_rule(lhs, rhs)
             },
@@ -55,23 +55,23 @@ impl Parser {
     }
 
     fn adv_marpa(&mut self) -> Result<()> {
-        self.parse = try!(self.parse.adv());
+        self.state = try!(self.state.adv());
         Ok(())
     }
 
-    fn run_recognizer(&mut self, input: &str) -> Result<()> {
-        match self.parse {
+    fn run_recognizer(&mut self) -> Result<()> {
+        match self.state {
             R(ref mut r) => {
                 try!(r.start_input());
                 loop {
                     if r.is_exhausted() {
                         break;
                     }
-                    let maybe_tok = self.lex.next_token(input);
+                    let maybe_tok = self.tokens.next_token();
                     match maybe_tok {
-                        None => panic!("no viable input"),
-                        Some((tok, val)) => {
-                            try!(r.alternative(tok.ty as i32, val as i32, 1));
+                        None => break,
+                        Some(tok) => {
+                            try!(r.alternative(tok.ty as i32, tok.val as i32, 1));
                             try!(r.earleme_complete());
                         }
                     }
@@ -81,7 +81,7 @@ impl Parser {
         }
         loop {
             try!(self.adv_marpa());
-            if let &T(_) = &self.parse {
+            if let &T(_) = &self.state {
                 break;
             }
         }
@@ -89,42 +89,3 @@ impl Parser {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use lexer::LexGen;
-    use parser::Parser;
-
-    use thin::*;
-
-    #[test]
-    fn stuff() {
-        let input = "this is a test";
-        let lex = {
-            let mut gen = LexGen::new();
-            for i in vec![r"is", r"test", r"this", r"a|b", r" "] {
-                gen.new_re(i).unwrap();
-            }
-            gen.compile()
-        };
-
-        let mut g = Grammar::new().unwrap();
-        let is = g.new_symbol().unwrap();
-        let test = g.new_symbol().unwrap();
-        let this = g.new_symbol().unwrap();
-        let a = g.new_symbol().unwrap();
-        let space = g.new_symbol().unwrap();
-        let start = g.new_symbol().unwrap();
-
-        g.set_start_symbol(start).unwrap();
-
-        let start_rule = g.new_rule(start, &[this, space, is, space, a, space, test]).unwrap();
-
-        g.precompute().unwrap();
-
-        let mut parse = Parser::new(lex, g);
-
-        parse.adv_marpa().unwrap();
-
-        parse.run_recognizer(input).unwrap();
-    }
-}
