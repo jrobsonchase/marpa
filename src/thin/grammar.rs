@@ -76,10 +76,10 @@ impl Grammar {
 
     // either gets the error code from the grammar, or, in the event that there
     // is no error code, provide an error from a string.
-    pub fn error_or<S: Into<String>, T>(&self, s: S) -> Result<T> {
+    pub fn error_or<T>(&self, s: &str) -> Result<T> {
         match self.error() {
             Ok(()) => err(s),
-            Err(error) => err(error),
+            Err(error) => Err(error),
         }
     }
 
