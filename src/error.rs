@@ -12,7 +12,7 @@ impl Error {
 impl ::std::error::Error for Error {
     fn description(&self) -> &str {
         match self.0 {
-            i if i >= 0 => MARPA_ERROR_DESCRIPTION[self.0 as usize].1,
+            i if i >= 0 => MARPA_ERROR_DESCRIPTION[self.0 as usize].2,
             _ => match self.1 {
                 Some(ref s) => s,
                 _ => "undefined error"
