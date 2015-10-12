@@ -21,7 +21,7 @@ impl<T, U> Stack<T, U> where U: Engine<T>, T: Default + Clone {
         match value_step {
             Step::Rule(rule, start, end) => {
                 self.size_stack(end as usize);
-                self.items[start as usize] = self.engine.proc_rule(rule, &self.items[start as usize..end as usize]);
+                self.items[start as usize] = self.engine.proc_rule(rule, &self.items[start as usize..end as usize + 1]);
             },
             Step::Token(sym, res, val) => {
                 self.size_stack(res as usize);
@@ -35,7 +35,8 @@ impl<T, U> Stack<T, U> where U: Engine<T>, T: Default + Clone {
         }
     }
 
-    fn size_stack(&mut self, size: usize) {
+    fn size_stack(&mut self, last: usize) {
+        let size = last + 1;
         let len = self.items.len();
         if len < size {
             self.items.reserve(size - len);

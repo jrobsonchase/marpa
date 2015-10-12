@@ -44,9 +44,8 @@ impl Default for MarpaState {
     }
 }
 
-pub struct Parser<T: TokenSource> {
+pub struct Parser {
     state: MarpaState,
-    tokens: T
 }
 
 macro_rules! get_state {
@@ -58,14 +57,19 @@ macro_rules! get_state {
     })
 }
 
-impl<T: TokenSource> Parser<T> {
-    pub fn new(tokens: T) -> Self {
-        Parser{ tokens: tokens, state: Default::default() }
+impl Parser {
+    pub fn new() -> Self {
+        Parser{ state: Default::default() }
+    }
+
+    pub fn create_symbol(&mut self) -> Result<Symbol> {
+        get_state!(self, G).new_symbol()
     }
 
     pub fn set_start(&mut self, sym: Symbol) -> Result<Symbol> {
         get_state!(self, G).set_start_symbol(sym)
     }
+
     pub fn add_rule(&mut self, lhs: Symbol, rhs: &[Symbol]) -> Result<Rule> {
         get_state!(self, G).new_rule(lhs, rhs)
     }
@@ -79,7 +83,8 @@ impl<T: TokenSource> Parser<T> {
         Ok(())
     }
 
-    pub fn run_recognizer(&mut self) -> Result<Tree> {
+    pub fn run_recognizer<T: TokenSource>(&mut self, tokens: T) -> Result<Tree> {
+        let mut tokens = tokens;
         if let G(_) = self.state {
             try!(self.adv_marpa())
         }
@@ -90,7 +95,7 @@ impl<T: TokenSource> Parser<T> {
                 if r.is_exhausted() {
                     break;
                 }
-                let maybe_tok = self.tokens.next_token();
+                let maybe_tok = tokens.next_token();
                 match maybe_tok {
                     None => break,
                     Some(tok) => {

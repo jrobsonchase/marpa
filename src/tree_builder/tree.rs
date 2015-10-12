@@ -5,9 +5,10 @@ use std::cell::RefCell;
 use lexer::token::Token;
 use std::ops::Deref;
 
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Debug)]
 pub struct Handle(Rc<RefCell<Node>>);
 
+#[derive(Debug)]
 pub enum Node {
     Tree(Rule, Vec<Handle>),
     Leaf(Token),
