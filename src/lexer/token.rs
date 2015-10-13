@@ -6,13 +6,13 @@ use thin::Symbol;
 /// type of value.
 #[derive(Copy,Clone,Debug,PartialEq,Eq)]
 pub struct Token {
-    pub ty: usize,
-    pub val: usize,
+    pub ty: Symbol,
+    pub val: i32,
 }
 
 
 impl Token {
     pub fn new(sym: Symbol, val: i32) -> Token {
-        Token{ ty: sym as usize, val: val as usize }
+        Token{ ty: sym, val: val }
     }
 }

@@ -1,13 +1,10 @@
-use thin::Rule;
 use thin::Step;
-use thin::Symbol;
 use thin::Value;
+use lexer::token::Token;
 
-pub trait Engine<T> {
-    fn proc_rule(&mut self, rule: Rule, children: &[T]) -> T;
-    fn proc_token(&mut self, sym: Symbol, val: i32) -> T;
-    fn proc_null(&mut self, sym: Symbol) -> T;
-}
+pub mod engine;
+
+use self::engine::Engine;
 
 struct Stack<T, U> where U: Engine<T>, T: Default + Clone {
     items: Vec<T>,
@@ -28,7 +25,7 @@ impl<T, U> Stack<T, U> where U: Engine<T>, T: Default + Clone {
             },
             Step::Token(sym, res, val) => {
                 self.size_stack(res as usize);
-                self.items[res as usize] = self.engine.proc_token(sym, val);
+                self.items[res as usize] = self.engine.proc_token(Token::new(sym, val));
             },
             Step::NullingSymbol(sym, res) => {
                 self.size_stack(res as usize);
