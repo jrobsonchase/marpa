@@ -36,7 +36,13 @@ impl From<i32> for Error {
 
 impl<'a> From<&'a str> for Error {
     fn from(other: &str) -> Error {
-        Error(-1, Some(other.into()))
+        other.into()
+    }
+}
+
+impl From<String> for Error {
+    fn from(other: String) -> Error {
+        Error(-1, Some(other))
     }
 }
 
