@@ -6,13 +6,13 @@ pub mod engine;
 
 use self::engine::Engine;
 
-struct Stack<T, U> where U: Engine<T>, T: Default + Clone {
-    items: Vec<T>,
-    engine: U,
+struct Stack<T> where T: Engine {
+    items: Vec<T::Tree>,
+    engine: T,
 }
 
-impl<T, U> Stack<T, U> where U: Engine<T>, T: Default + Clone {
-    fn new(engine: U) -> Stack<T, U> {
+impl<T> Stack<T> where T: Engine {
+    fn new(engine: T) -> Stack<T> {
         let items = vec![Default::default(); 1];
         Stack{ items: items, engine: engine }
     }
@@ -40,13 +40,13 @@ impl<T, U> Stack<T, U> where U: Engine<T>, T: Default + Clone {
         let len = self.items.len();
         if len < size {
             self.items.reserve(size - len);
-            for _ in (len..size) {
+            for _ in len..size {
                 self.items.push(Default::default());
             }
         }
     }
 
-    fn proc_value(&mut self, val: &mut Value) -> &T {
+    fn proc_value(&mut self, val: &mut Value) -> &T::Tree {
         for v in val {
             self.step(v);
         }
@@ -54,7 +54,7 @@ impl<T, U> Stack<T, U> where U: Engine<T>, T: Default + Clone {
     }
 }
 
-pub fn proc_value<T: Default + Clone, U: Engine<T>>(eng: U, mut val: Value) -> T {
+pub fn proc_value<T: Engine>(eng: T, mut val: Value) -> T::Tree {
     let mut stack = Stack::new(eng);
     stack.proc_value(&mut val).clone()
 }

@@ -15,7 +15,9 @@ impl TreeBuilder {
     }
 }
 
-impl Engine<Handle> for TreeBuilder {
+impl Engine for TreeBuilder {
+    type Tree = Handle;
+
     fn proc_rule(&mut self, rule: Rule, children: &[Handle]) -> Handle {
         Node::tree(rule, children).into()
     }
