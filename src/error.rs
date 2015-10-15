@@ -1,6 +1,5 @@
 #![allow(unused)]
 
-#[derive(Debug)]
 pub struct Error(i32, Option<String>);
 
 impl Error {
@@ -28,9 +27,18 @@ impl ::std::fmt::Display for Error {
     }
 }
 
+impl ::std::fmt::Debug for Error {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        write!(f, "{}", self)
+    }
+}
+
 impl From<i32> for Error {
     fn from(other: i32) -> Error {
-        Error(other, None)
+        match other {
+            i if i >= 0 => Error(i, None),
+            i => Error(i, Some(format!("undefined error: {}", i))),
+        }
     }
 }
 

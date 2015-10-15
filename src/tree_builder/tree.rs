@@ -15,6 +15,34 @@ pub enum Node {
     Null(Symbol),
 }
 
+impl ::std::fmt::Display for Node {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        match *self {
+            Node::Tree(ref rule, ref children) => {
+                try!(write!(f, "Tree({},", rule));
+                for child in children {
+                    try!(write!(f, " {}", child));
+                }
+                try!(write!(f, ")"));
+            },
+            Node::Leaf(tok) => {
+                try!(write!(f, "Leaf({}, {})", tok.ty, tok.val));
+            },
+            Node::Null(sym) => {
+                try!(write!(f, "Null({})", sym));
+            },
+        }
+        Ok(())
+    }
+}
+
+impl ::std::fmt::Display for Handle {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        write!(f, "{}", *self.borrow())
+    }
+}
+
+
 impl Node {
     pub fn leaf(tok: Token) -> Node {
         Node::Leaf(tok)

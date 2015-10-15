@@ -190,7 +190,7 @@ impl Grammar {
         let max = unsafe { marpa_g_highest_rule_id(self.internal) };
         match max {
             -2 => self.error_or("error getting highest symbol"),
-            max => Ok((0..max+1)),
+            max => Ok(0..max+1),
         }
     }
 
@@ -270,7 +270,7 @@ impl Grammar {
     pub fn rule_rhs(&self, rule: Rule) -> Result<Vec<Symbol>> {
         let len = try!(self.rule_length(rule));
         let mut syms: Vec<Symbol> = vec![];
-        for id in (0..len) {
+        for id in 0..len {
             let sym = try!(self.rule_rhs_ix(rule, id));
 
             syms.push(sym);
@@ -513,7 +513,7 @@ mod tests {
     #[test]
     fn iter_syms() {
         let mut g = new_grammar();
-        for _ in (0..5) {
+        for _ in 0..5 {
             g.new_symbol().unwrap();
         }
         let ids: Vec<i32> = vec![0,1,2,3,4];
@@ -523,7 +523,7 @@ mod tests {
     #[test]
     fn iter_rules() {
         let mut g = new_grammar();
-        for _ in (0..6) {
+        for _ in 0..6 {
             g.new_symbol().unwrap();
         }
 

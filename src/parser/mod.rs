@@ -95,7 +95,7 @@ impl Parser {
                 if r.is_exhausted() {
                     break;
                 }
-                let maybe_tok = tokens.next_token();
+                let maybe_tok = tokens.next();
                 match maybe_tok {
                     None => break,
                     Some(tok) => {
