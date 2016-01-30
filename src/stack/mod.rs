@@ -1,35 +1,34 @@
 use thin::Step;
 use thin::Value;
-use lexer::token::Token;
 
-pub mod engine;
+pub mod processor;
 
-use self::engine::Engine;
+use self::processor::Processor;
 
-struct Stack<T> where T: Engine {
+struct Stack<T> where T: Processor {
     items: Vec<T::Tree>,
-    engine: T,
+    processor: T,
 }
 
-impl<T> Stack<T> where T: Engine {
-    fn new(engine: T) -> Stack<T> {
+impl<T> Stack<T> where T: Processor {
+    fn new(processor: T) -> Stack<T> {
         let items = vec![Default::default(); 1];
-        Stack{ items: items, engine: engine }
+        Stack{ items: items, processor: processor }
     }
 
     fn step(&mut self, value_step: Step) {
         match value_step {
             Step::Rule(rule, start, end) => {
                 self.size_stack(end as usize);
-                self.items[start as usize] = self.engine.proc_rule(rule, &self.items[start as usize..end as usize + 1]);
+                self.items[start as usize] = self.processor.proc_rule(rule, &self.items[start as usize..end as usize + 1]);
             },
             Step::Token(sym, res, val) => {
                 self.size_stack(res as usize);
-                self.items[res as usize] = self.engine.proc_token(Token::new(sym, val));
+                self.items[res as usize] = self.processor.proc_token((sym, val).into());
             },
             Step::NullingSymbol(sym, res) => {
                 self.size_stack(res as usize);
-                self.items[res as usize] = self.engine.proc_null(sym);
+                self.items[res as usize] = self.processor.proc_null(sym);
             },
             s => panic!("Invalid step: {:?}", s),
         }
@@ -54,7 +53,7 @@ impl<T> Stack<T> where T: Engine {
     }
 }
 
-pub fn proc_value<T: Engine>(eng: T, mut val: Value) -> T::Tree {
+pub fn proc_value<T: Processor>(eng: T, mut val: Value) -> T::Tree {
     let mut stack = Stack::new(eng);
     stack.proc_value(&mut val).clone()
 }

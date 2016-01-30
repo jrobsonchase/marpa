@@ -1,3 +1,4 @@
+use std::fmt;
 use thin::Rule;
 use thin::Symbol;
 use std::rc::Rc;
@@ -6,27 +7,31 @@ use lexer::token::Token;
 use std::ops::Deref;
 
 #[derive(Clone, Default, Debug)]
-pub struct Handle(Rc<RefCell<Node>>);
+pub struct Handle<T: Token>(Rc<RefCell<Node<T>>>);
 
 #[derive(Debug)]
-pub enum Node {
-    Tree(Rule, Vec<Handle>),
-    Leaf(Token),
+pub enum Node<T> where T: Token {
+    Rule(Rule, Vec<Handle<T>>),
+    Token(Rule, String),
+    Leaf(T),
     Null(Symbol),
 }
 
-impl ::std::fmt::Display for Node {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+impl<T: Token> fmt::Display for Node<T> where T: fmt::Display {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Node::Tree(ref rule, ref children) => {
-                try!(write!(f, "Tree({},", rule));
+            Node::Rule(ref rule, ref children) => {
+                try!(write!(f, "Rule({},", rule));
                 for child in children {
                     try!(write!(f, " {}", child));
                 }
                 try!(write!(f, ")"));
             },
-            Node::Leaf(tok) => {
-                try!(write!(f, "Leaf({}, {})", tok.ty, tok.val));
+            Node::Token(ty, ref val) => {
+                try!(write!(f, "Token({}, {})", ty, val));
+            },
+            Node::Leaf(ref tok) => {
+                try!(write!(f, "Leaf({})", tok));
             },
             Node::Null(sym) => {
                 try!(write!(f, "Null({})", sym));
@@ -36,43 +41,47 @@ impl ::std::fmt::Display for Node {
     }
 }
 
-impl ::std::fmt::Display for Handle {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+impl<T: Token> fmt::Display for Handle<T> where T: fmt::Display {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}", *self.borrow())
     }
 }
 
 
-impl Node {
-    pub fn leaf(tok: Token) -> Node {
+impl<T: Token> Node<T> {
+    pub fn token(tok: Symbol, val: String) -> Node<T> {
+        Node::Token(tok, val)
+    }
+
+    pub fn leaf(tok: T) -> Node<T> {
         Node::Leaf(tok)
     }
 
-    pub fn tree(rule: Rule, children: &[Handle]) -> Node {
-        Node::Tree(rule, children.into())
+    pub fn rule(rule: Rule, children: &[Handle<T>]) -> Node<T> where T: Clone {
+        Node::Rule(rule, children.into())
     }
 
-    pub fn null(sym: Symbol) -> Node {
+    pub fn null(sym: Symbol) -> Node<T> {
         Node::Null(sym)
     }
 }
 
-impl Default for Node {
-    fn default() -> Node {
+impl<T: Token> Default for Node<T> where T: Default {
+    fn default() -> Node<T> {
         Node::Null(-1)
     }
 }
 
-impl Deref for Handle {
-    type Target = Rc<RefCell<Node>>;
+impl<T: Token> Deref for Handle<T> {
+    type Target = Rc<RefCell<Node<T>>>;
 
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
-impl From<Node> for Handle {
-    fn from(other: Node) -> Handle {
+impl<T: Token> From<Node<T>> for Handle<T> {
+    fn from(other: Node<T>) -> Handle<T> {
         Handle(Rc::new(RefCell::new(other)))
     }
 }

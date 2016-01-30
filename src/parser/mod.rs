@@ -1,6 +1,24 @@
-use lexer::token_source::TokenSource;
+use std::mem;
 
-use thin::*;
+use lexer::token_source::TokenSource;
+use lexer::token::Token;
+
+use result::Result;
+
+pub mod symbol;
+use self::symbol::Symbol;
+
+mod rule;
+use self::rule::Rule;
+
+use thin::{
+    Grammar,
+    Recognizer,
+    Bocage,
+    Order,
+    Tree,
+    // Value,
+};
 
 #[allow(dead_code)]
 enum MarpaState {
@@ -63,19 +81,21 @@ impl Parser {
     }
 
     pub fn create_symbol(&mut self) -> Result<Symbol> {
-        get_state!(self, G).new_symbol()
+        get_state!(self, G).new_symbol().map(|x| x.into())
     }
 
     pub fn set_start(&mut self, sym: Symbol) -> Result<Symbol> {
-        get_state!(self, G).set_start_symbol(sym)
+        get_state!(self, G).set_start_symbol(*sym).map(|x| x.into())
     }
 
     pub fn add_rule(&mut self, lhs: Symbol, rhs: &[Symbol]) -> Result<Rule> {
-        get_state!(self, G).new_rule(lhs, rhs)
+        // using transmute here to avoid an extra copy. if Symbol is ever changed to
+        // not just be a Symbol(thin::Symbol), this will have some crazy results.
+        get_state!(self, G).new_rule(*lhs, unsafe { mem::transmute(rhs) }).map(|x| x.into())
     }
 
     pub fn add_seq(&mut self, lhs: Symbol, rhs: Symbol, sep: Symbol, nonempty: bool, proper: bool) -> Result<Rule> {
-        get_state!(self, G).new_sequence(lhs, rhs, sep, nonempty, proper)
+        get_state!(self, G).new_sequence(*lhs, *rhs, *sep, nonempty, proper).map(|x| x.into())
     }
 
     fn adv_marpa(&mut self) -> Result<()> {
@@ -83,7 +103,7 @@ impl Parser {
         Ok(())
     }
 
-    pub fn run_recognizer<T: TokenSource>(&mut self, tokens: T) -> Result<Tree> {
+    pub fn run_recognizer<T: TokenSource<U>, U: Token>(&mut self, tokens: T) -> Result<Tree> {
         let mut tokens = tokens;
         if let G(_) = self.state {
             try!(self.adv_marpa())
@@ -99,7 +119,7 @@ impl Parser {
                 match maybe_tok {
                     None => break,
                     Some(tok) => {
-                        try!(r.alternative(tok.ty, tok.val, 1));
+                        try!(r.alternative(tok.sym(), tok.value(), 1));
                         try!(r.earleme_complete());
                     }
                 }

@@ -1,4 +1,44 @@
+use thin::Symbol;
 use lexer::token::Token;
+use std::fmt;
+use std::str;
+
+#[derive(Default,PartialEq,Eq,PartialOrd,Debug,Copy,Clone)]
+pub struct ByteToken(u8);
+
+impl fmt::Display for ByteToken {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let a: [u8; 1] = [self.0];
+        match str::from_utf8(&a) {
+            Err(_) => write!(f, "{:x}", self.0),
+            Ok(s) => write!(f, "'{}'", s),
+        }
+    }
+}
+
+impl From<(Symbol, i32)> for ByteToken {
+    fn from((sym, _): (Symbol, i32)) -> Self {
+        ByteToken(sym as u8)
+    }
+}
+
+impl Token for ByteToken {
+    fn sym(&self) -> Symbol {
+        self.0 as i32
+    }
+
+    fn value(&self) -> i32 {
+        (self.0 + 1) as i32
+    }
+}
+
+impl ::std::ops::Deref for ByteToken {
+    type Target = u8;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
 
 pub struct ByteScanner<R: ::std::io::Read> {
     rd: R,
@@ -40,11 +80,11 @@ impl<R: ::std::io::Read> ByteScanner<R> {
 }
 
 impl<R: ::std::io::Read> Iterator for ByteScanner<R> {
-    type Item = Token;
+    type Item = ByteToken;
 
-    fn next(&mut self) -> Option<Token> {
+    fn next(&mut self) -> Option<ByteToken> {
         match self.read_byte() {
-            Some(byte) => Some(Token::new(byte as i32, (byte+1) as i32)),
+            Some(byte) => Some(ByteToken(byte)),
             None => None,
         }
     }
@@ -55,7 +95,7 @@ impl<R: ::std::io::Read> Iterator for ByteScanner<R> {
 #[cfg(test)]
 mod tests {
     use super::ByteScanner;
-    use super::super::token::Token;
+    use super::ByteToken;
     use super::super::token_source::TokenSource;
     use std::io::Cursor;
 
@@ -65,23 +105,23 @@ mod tests {
         let scanner = ByteScanner::new(input);
         must_compile(&scanner);
 
-        let toks: Vec<Token> = scanner.collect();
+        let toks: Vec<ByteToken> = scanner.collect();
         assert!(toks == vec![
-            Token { ty: 72, val: 73 },
-            Token { ty: 101, val: 102 },
-            Token { ty: 108, val: 109 },
-            Token { ty: 108, val: 109 },
-            Token { ty: 111, val: 112 },
-            Token { ty: 44, val: 45 },
-            Token { ty: 32, val: 33 },
-            Token { ty: 119, val: 120 },
-            Token { ty: 111, val: 112 },
-            Token { ty: 114, val: 115 },
-            Token { ty: 108, val: 109 },
-            Token { ty: 100, val: 101 },
-            Token { ty: 33, val: 34 },
+            ByteToken(72),
+            ByteToken(101),
+            ByteToken(108),
+            ByteToken(108),
+            ByteToken(111),
+            ByteToken(44),
+            ByteToken(32),
+            ByteToken(119),
+            ByteToken(111),
+            ByteToken(114),
+            ByteToken(108),
+            ByteToken(100),
+            ByteToken(33),
             ]);
     }
 
-    fn must_compile<T: TokenSource>(_: &T){}
+    fn must_compile<T: TokenSource<ByteToken>>(_: &T){}
 }
