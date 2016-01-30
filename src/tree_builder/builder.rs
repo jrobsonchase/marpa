@@ -1,6 +1,5 @@
 use thin::Rule;
 use thin::Symbol;
-use lexer::token::Token;
 use lexer::byte_scanner::ByteToken;
 use tree_builder::tree::Handle;
 use tree_builder::tree::Node;
@@ -40,7 +39,13 @@ impl Processor for TreeBuilder {
     type Token = ByteToken;
 
     fn proc_rule(&mut self, rule: Rule, children: &[Handle<ByteToken>]) -> Handle<ByteToken> {
-        Node::rule(rule, children).into()
+        if self.is_token(rule) {
+            Node::token(rule, rollup_token(children)).into()
+        } else if self.is_rule(rule) {
+            Node::rule(rule, rollup_rule(children)).into()
+        } else {
+            Node::tree(rule, children).into()
+        }
     }
 
     fn proc_token(&mut self, tok: ByteToken) -> Handle<ByteToken> {
@@ -52,25 +57,40 @@ impl Processor for TreeBuilder {
     }
 }
 
-fn rollup(children: &[Handle<ByteToken>]) -> String {
+fn rollup_token(children: &[Handle<ByteToken>]) -> Vec<u8> {
     let mut bytes = vec![];
-    traverse(children, &mut bytes);
-    String::from_utf8(bytes).unwrap()
+    rollup_token_rec(children, &mut bytes);
+    bytes
 }
 
-fn traverse(handles: &[Handle<ByteToken>], out: &mut Vec<u8>) {
+// TODO tco
+fn rollup_token_rec(handles: &[Handle<ByteToken>], out: &mut Vec<u8>) {
     for child in handles.iter() {
         match &*child.borrow() {
-            &Node::Rule(_, ref chs) => {
-                traverse(chs, out);
-            },
-            &Node::Leaf(tok) => {
-                out.push(*tok);
-            },
+            &Node::Leaf(tok) => out.push(*tok),
             &Node::Null(_) => {},
-            &Node::Token(_, ref st) => {
-                out.extend(st.as_bytes());
-            }
+            &Node::Tree(_, ref chs) => rollup_token_rec(chs, out),
+            &Node::Rule(_, _) => panic!("cannot rollup Rule into Token - this is an internal bug."),
+            &Node::Token(_, _) => panic!("cannot rollup Token into Token - this is an internal bug."),
+        }
+    }
+}
+
+fn rollup_rule(children: &[Handle<ByteToken>]) -> Vec<Handle<ByteToken>> {
+    let mut new_children = vec![];
+    rollup_rule_rec(children, &mut new_children);
+    new_children
+}
+
+// TODO tco
+fn rollup_rule_rec(handles: &[Handle<ByteToken>], out: &mut Vec<Handle<ByteToken>>) {
+    for child in handles.iter() {
+        match &*child.borrow() {
+            &Node::Token(_, _) => out.push(child.clone()),
+            &Node::Rule(_, _) => out.push(child.clone()),
+            &Node::Null(_) => {},
+            &Node::Tree(_, ref chs) => rollup_rule_rec(chs, out),
+            &Node::Leaf(_) => panic!("cannot rollup Leaf into Rule - this is an internal bug."),
         }
     }
 }
