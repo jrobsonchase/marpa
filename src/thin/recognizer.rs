@@ -221,7 +221,7 @@ impl Recognizer {
         let num_items = try!(self.progress_report_start(set));
         let mut report: Vec<ProgressItem> = Vec::new();
         let mut res: Option<Result<ProgressReport>> = None;
-        for _ in (0..num_items) {
+        for _ in 0..num_items {
             match self.progress_report_item() {
                 Ok(item) => report.push(item),
                 Err(err) =>{

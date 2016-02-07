@@ -1,6 +1,5 @@
 #![allow(unused)]
 
-#[derive(Debug)]
 pub struct Error(i32, Option<String>);
 
 impl Error {
@@ -12,7 +11,7 @@ impl Error {
 impl ::std::error::Error for Error {
     fn description(&self) -> &str {
         match self.0 {
-            i if i >= 0 => MARPA_ERROR_DESCRIPTION[self.0 as usize].1,
+            i if i >= 0 => MARPA_ERROR_DESCRIPTION[self.0 as usize].2,
             _ => match self.1 {
                 Some(ref s) => s,
                 _ => "undefined error"
@@ -28,15 +27,30 @@ impl ::std::fmt::Display for Error {
     }
 }
 
+impl ::std::fmt::Debug for Error {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+        write!(f, "{}", self)
+    }
+}
+
 impl From<i32> for Error {
     fn from(other: i32) -> Error {
-        Error(other, None)
+        match other {
+            i if i >= 0 => Error(i, None),
+            i => Error(i, Some(format!("undefined error: {}", i))),
+        }
     }
 }
 
 impl<'a> From<&'a str> for Error {
     fn from(other: &str) -> Error {
-        Error(-1, Some(other.into()))
+        other.into()
+    }
+}
+
+impl From<String> for Error {
+    fn from(other: String) -> Error {
+        Error(-1, Some(other))
     }
 }
 
