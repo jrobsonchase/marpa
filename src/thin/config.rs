@@ -7,9 +7,6 @@ pub struct Config {
     internal: Marpa_Config,
 }
 
-pub fn internal(cfg: &Config) -> Marpa_Config {
-    cfg.internal
-}
 
 impl Config {
     pub fn new() -> Config {
@@ -18,6 +15,10 @@ impl Config {
         assert!(cfg.init() == MARPA_ERR_NONE);
 
         cfg
+    }
+
+    pub fn internal(&self) -> Marpa_Config {
+        self.internal
     }
 
     fn init(&mut self) -> Marpa_Error_Code {

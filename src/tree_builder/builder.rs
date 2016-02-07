@@ -9,6 +9,7 @@ use std::collections::HashSet;
 #[derive(Default)]
 pub struct TreeBuilder {
     token_rules: HashSet<Rule>,
+    discard_rules: HashSet<Rule>,
     rules: HashSet<Rule>,
 }
 
@@ -32,6 +33,14 @@ impl TreeBuilder {
     pub fn is_rule(&self, rule_id: Rule) -> bool {
         self.rules.contains(&rule_id)
     }
+
+    pub fn discard(&mut self, rule_id: Rule) {
+        self.discard_rules.insert(rule_id);
+    }
+
+    pub fn is_discard(&mut self, rule_id: Rule) -> bool {
+        self.discard_rules.contains(&rule_id)
+    }
 }
 
 impl Processor for TreeBuilder {
@@ -43,6 +52,8 @@ impl Processor for TreeBuilder {
             Node::token(rule, rollup_token(children)).into()
         } else if self.is_rule(rule) {
             Node::rule(rule, rollup_rule(children)).into()
+        } else if self.is_discard(rule) {
+            Node::Null(0).into()
         } else {
             Node::tree(rule, children).into()
         }

@@ -11,8 +11,6 @@ use thin::{
     EventIter,
 };
 
-use thin::config;
-
 use std::ptr;
 
 pub struct Grammar {
@@ -42,7 +40,7 @@ impl Grammar {
     pub fn new() -> Result<Grammar> {
         let mut cfg = Config::new();
         unsafe {
-            let c_grammar = marpa_g_new(&mut config::internal(&cfg));
+            let c_grammar = marpa_g_new(&mut cfg.internal());
 
             try!(cfg.error());
 
@@ -54,7 +52,7 @@ impl Grammar {
     pub fn with_config(cfg: Config) -> Result<Grammar> {
         let mut cfg = cfg;
         unsafe {
-            let c_grammar = marpa_g_new(&mut config::internal(&cfg));
+            let c_grammar = marpa_g_new(&mut cfg.internal());
 
             try!(cfg.error());
 

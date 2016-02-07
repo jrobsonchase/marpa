@@ -1,15 +1,7 @@
-use std::mem;
-
 use lexer::token_source::TokenSource;
 use lexer::token::Token;
 
 use result::Result;
-
-pub mod symbol;
-use self::symbol::Symbol;
-
-mod rule;
-use self::rule::Rule;
 
 use thin::{
     Grammar,
@@ -80,22 +72,8 @@ impl Parser {
         Parser{ state: Default::default() }
     }
 
-    pub fn create_symbol(&mut self) -> Result<Symbol> {
-        get_state!(self, G).new_symbol().map(|x| x.into())
-    }
-
-    pub fn set_start(&mut self, sym: Symbol) -> Result<Symbol> {
-        get_state!(self, G).set_start_symbol(*sym).map(|x| x.into())
-    }
-
-    pub fn add_rule(&mut self, lhs: Symbol, rhs: &[Symbol]) -> Result<Rule> {
-        // using transmute here to avoid an extra copy. if Symbol is ever changed to
-        // not just be a Symbol(thin::Symbol), this will have some crazy results.
-        get_state!(self, G).new_rule(*lhs, unsafe { mem::transmute(rhs) }).map(|x| x.into())
-    }
-
-    pub fn add_seq(&mut self, lhs: Symbol, rhs: Symbol, sep: Symbol, nonempty: bool, proper: bool) -> Result<Rule> {
-        get_state!(self, G).new_sequence(*lhs, *rhs, *sep, nonempty, proper).map(|x| x.into())
+    pub fn with_grammar(g: Grammar) -> Self {
+        Parser { state: G(g) }
     }
 
     fn adv_marpa(&mut self) -> Result<()> {
@@ -119,8 +97,7 @@ impl Parser {
                 match maybe_tok {
                     None => break,
                     Some(tok) => {
-                        try!(r.alternative(tok.sym(), tok.value(), 1));
-                        try!(r.earleme_complete());
+                        try!(Parser::consume_tok(r, tok));
                     }
                 }
             }
@@ -131,6 +108,12 @@ impl Parser {
                 return Ok(tree.clone());
             }
         }
+    }
+
+    fn consume_tok<U: Token>(r: &mut Recognizer, tok: U) -> Result<()> {
+        try!(r.alternative(tok.sym(), tok.value(), 1));
+        try!(r.earleme_complete());
+        Ok(())
     }
 }
 

@@ -5,3 +5,4 @@ pub mod lexer;
 pub mod stack;
 pub mod tree_builder;
 pub mod parser;
+pub mod grammar;
