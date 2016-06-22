@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="Source to the Rust file `src/error.rs`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang">
+
+    <title>error.rs.html -- source</title>
+
+    <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content source"><pre class="line-numbers"><span id="1">  1</span>
+<span id="2">  2</span>
+<span id="3">  3</span>
+<span id="4">  4</span>
+<span id="5">  5</span>
+<span id="6">  6</span>
+<span id="7">  7</span>
+<span id="8">  8</span>
+<span id="9">  9</span>
+<span id="10"> 10</span>
+<span id="11"> 11</span>
+<span id="12"> 12</span>
+<span id="13"> 13</span>
+<span id="14"> 14</span>
+<span id="15"> 15</span>
+<span id="16"> 16</span>
+<span id="17"> 17</span>
+<span id="18"> 18</span>
+<span id="19"> 19</span>
+<span id="20"> 20</span>
+<span id="21"> 21</span>
+<span id="22"> 22</span>
+<span id="23"> 23</span>
+<span id="24"> 24</span>
+<span id="25"> 25</span>
+<span id="26"> 26</span>
+<span id="27"> 27</span>
+<span id="28"> 28</span>
+<span id="29"> 29</span>
+<span id="30"> 30</span>
+<span id="31"> 31</span>
+<span id="32"> 32</span>
+<span id="33"> 33</span>
+<span id="34"> 34</span>
+<span id="35"> 35</span>
+<span id="36"> 36</span>
+<span id="37"> 37</span>
+<span id="38"> 38</span>
+<span id="39"> 39</span>
+<span id="40"> 40</span>
+<span id="41"> 41</span>
+<span id="42"> 42</span>
+<span id="43"> 43</span>
+<span id="44"> 44</span>
+<span id="45"> 45</span>
+<span id="46"> 46</span>
+<span id="47"> 47</span>
+<span id="48"> 48</span>
+<span id="49"> 49</span>
+<span id="50"> 50</span>
+<span id="51"> 51</span>
+<span id="52"> 52</span>
+<span id="53"> 53</span>
+<span id="54"> 54</span>
+<span id="55"> 55</span>
+<span id="56"> 56</span>
+<span id="57"> 57</span>
+<span id="58"> 58</span>
+<span id="59"> 59</span>
+<span id="60"> 60</span>
+<span id="61"> 61</span>
+<span id="62"> 62</span>
+<span id="63"> 63</span>
+<span id="64"> 64</span>
+<span id="65"> 65</span>
+<span id="66"> 66</span>
+<span id="67"> 67</span>
+<span id="68"> 68</span>
+<span id="69"> 69</span>
+<span id="70"> 70</span>
+<span id="71"> 71</span>
+<span id="72"> 72</span>
+<span id="73"> 73</span>
+<span id="74"> 74</span>
+<span id="75"> 75</span>
+<span id="76"> 76</span>
+<span id="77"> 77</span>
+<span id="78"> 78</span>
+<span id="79"> 79</span>
+<span id="80"> 80</span>
+<span id="81"> 81</span>
+<span id="82"> 82</span>
+<span id="83"> 83</span>
+<span id="84"> 84</span>
+<span id="85"> 85</span>
+<span id="86"> 86</span>
+<span id="87"> 87</span>
+<span id="88"> 88</span>
+<span id="89"> 89</span>
+<span id="90"> 90</span>
+<span id="91"> 91</span>
+<span id="92"> 92</span>
+<span id="93"> 93</span>
+<span id="94"> 94</span>
+<span id="95"> 95</span>
+<span id="96"> 96</span>
+<span id="97"> 97</span>
+<span id="98"> 98</span>
+<span id="99"> 99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+</pre><pre class='rust '>
+<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>allow</span>(<span class='ident'>unused</span>)]</span>
+
+<span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Error</span>(<span class='ident'>i32</span>, <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>String</span><span class='op'>&gt;</span>);
+
+<span class='kw'>impl</span> <span class='ident'>Error</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>get_code</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>i32</span> {
+        <span class='self'>self</span>.<span class='number'>0</span>
+    }
+}
+
+<span class='kw'>impl</span> ::<span class='ident'>std</span>::<span class='ident'>error</span>::<span class='ident'>Error</span> <span class='kw'>for</span> <span class='ident'>Error</span> {
+    <span class='kw'>fn</span> <span class='ident'>description</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>str</span> {
+        <span class='kw'>match</span> <span class='self'>self</span>.<span class='number'>0</span> {
+            <span class='ident'>i</span> <span class='kw'>if</span> <span class='ident'>i</span> <span class='op'>&gt;=</span> <span class='number'>0</span> <span class='op'>=&gt;</span> <span class='ident'>MARPA_ERROR_DESCRIPTION</span>[<span class='self'>self</span>.<span class='number'>0</span> <span class='kw'>as</span> <span class='ident'>usize</span>].<span class='number'>2</span>,
+            _ <span class='op'>=&gt;</span> <span class='kw'>match</span> <span class='self'>self</span>.<span class='number'>1</span> {
+                <span class='prelude-val'>Some</span>(<span class='kw-2'>ref</span> <span class='ident'>s</span>) <span class='op'>=&gt;</span> <span class='ident'>s</span>,
+                _ <span class='op'>=&gt;</span> <span class='string'>&quot;undefined error&quot;</span>
+            }
+        }
+    }
+}
+
+<span class='kw'>impl</span> ::<span class='ident'>std</span>::<span class='ident'>fmt</span>::<span class='ident'>Display</span> <span class='kw'>for</span> <span class='ident'>Error</span> {
+    <span class='kw'>fn</span> <span class='ident'>fmt</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>f</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> ::<span class='ident'>std</span>::<span class='ident'>fmt</span>::<span class='ident'>Formatter</span>) <span class='op'>-&gt;</span> ::<span class='ident'>std</span>::<span class='ident'>fmt</span>::<span class='prelude-ty'>Result</span> {
+        <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>error</span>::<span class='ident'>Error</span>;
+        <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;{}&quot;</span>, <span class='self'>self</span>.<span class='ident'>description</span>())
+    }
+}
+
+<span class='kw'>impl</span> ::<span class='ident'>std</span>::<span class='ident'>fmt</span>::<span class='ident'>Debug</span> <span class='kw'>for</span> <span class='ident'>Error</span> {
+    <span class='kw'>fn</span> <span class='ident'>fmt</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>, <span class='ident'>f</span>: <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> ::<span class='ident'>std</span>::<span class='ident'>fmt</span>::<span class='ident'>Formatter</span>) <span class='op'>-&gt;</span> ::<span class='ident'>std</span>::<span class='ident'>fmt</span>::<span class='prelude-ty'>Result</span> {
+        <span class='macro'>write</span><span class='macro'>!</span>(<span class='ident'>f</span>, <span class='string'>&quot;{}&quot;</span>, <span class='self'>self</span>)
+    }
+}
+
+<span class='kw'>impl</span> <span class='ident'>From</span><span class='op'>&lt;</span><span class='ident'>i32</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Error</span> {
+    <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='ident'>other</span>: <span class='ident'>i32</span>) <span class='op'>-&gt;</span> <span class='ident'>Error</span> {
+        <span class='kw'>match</span> <span class='ident'>other</span> {
+            <span class='ident'>i</span> <span class='kw'>if</span> <span class='ident'>i</span> <span class='op'>&gt;=</span> <span class='number'>0</span> <span class='op'>=&gt;</span> <span class='ident'>Error</span>(<span class='ident'>i</span>, <span class='prelude-val'>None</span>),
+            <span class='ident'>i</span> <span class='op'>=&gt;</span> <span class='ident'>Error</span>(<span class='ident'>i</span>, <span class='prelude-val'>Some</span>(<span class='macro'>format</span><span class='macro'>!</span>(<span class='string'>&quot;undefined error: {}&quot;</span>, <span class='ident'>i</span>))),
+        }
+    }
+}
+
+<span class='kw'>impl</span><span class='op'>&lt;</span><span class='lifetime'>&#39;a</span><span class='op'>&gt;</span> <span class='ident'>From</span><span class='op'>&lt;</span><span class='kw-2'>&amp;</span><span class='lifetime'>&#39;a</span> <span class='ident'>str</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Error</span> {
+    <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='ident'>other</span>: <span class='kw-2'>&amp;</span><span class='ident'>str</span>) <span class='op'>-&gt;</span> <span class='ident'>Error</span> {
+        <span class='ident'>other</span>.<span class='ident'>into</span>()
+    }
+}
+
+<span class='kw'>impl</span> <span class='ident'>From</span><span class='op'>&lt;</span><span class='ident'>String</span><span class='op'>&gt;</span> <span class='kw'>for</span> <span class='ident'>Error</span> {
+    <span class='kw'>fn</span> <span class='ident'>from</span>(<span class='ident'>other</span>: <span class='ident'>String</span>) <span class='op'>-&gt;</span> <span class='ident'>Error</span> {
+        <span class='ident'>Error</span>(<span class='op'>-</span><span class='number'>1</span>, <span class='prelude-val'>Some</span>(<span class='ident'>other</span>))
+    }
+}
+
+<span class='kw'>impl</span> ::<span class='ident'>std</span>::<span class='ident'>ops</span>::<span class='ident'>Deref</span> <span class='kw'>for</span> <span class='ident'>Error</span> {
+    <span class='kw'>type</span> <span class='ident'>Target</span> <span class='op'>=</span> <span class='ident'>str</span>;
+
+    <span class='kw'>fn</span> <span class='ident'>deref</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='kw-2'>&amp;</span><span class='ident'>str</span> {
+        <span class='kw'>use</span> ::<span class='ident'>std</span>::<span class='ident'>error</span>::<span class='ident'>Error</span>;
+        <span class='self'>self</span>.<span class='ident'>description</span>()
+    }
+}
+
+<span class='kw'>type</span> <span class='ident'>MarpaDescription</span> <span class='op'>=</span> (<span class='ident'>i32</span>, <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>, <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> <span class='ident'>str</span>);
+
+<span class='attribute'>#[<span class='ident'>allow</span>(<span class='ident'>unused</span>)]</span>
+<span class='kw'>const</span> <span class='ident'>MARPA_ERROR_DESCRIPTION</span>: <span class='kw-2'>&amp;</span><span class='lifetime'>&#39;static</span> [<span class='ident'>MarpaDescription</span>] <span class='op'>=</span> <span class='kw-2'>&amp;</span>[
+    (<span class='number'>0</span>, <span class='string'>&quot;MARPA_ERR_NONE&quot;</span>, <span class='string'>&quot;No error&quot;</span> ),
+    (<span class='number'>1</span>, <span class='string'>&quot;MARPA_ERR_AHFA_IX_NEGATIVE&quot;</span>, <span class='string'>&quot;MARPA_ERR_AHFA_IX_NEGATIVE&quot;</span> ),
+    (<span class='number'>2</span>, <span class='string'>&quot;MARPA_ERR_AHFA_IX_OOB&quot;</span>, <span class='string'>&quot;MARPA_ERR_AHFA_IX_OOB&quot;</span> ),
+    (<span class='number'>3</span>, <span class='string'>&quot;MARPA_ERR_ANDID_NEGATIVE&quot;</span>, <span class='string'>&quot;MARPA_ERR_ANDID_NEGATIVE&quot;</span> ),
+    (<span class='number'>4</span>, <span class='string'>&quot;MARPA_ERR_ANDID_NOT_IN_OR&quot;</span>, <span class='string'>&quot;MARPA_ERR_ANDID_NOT_IN_OR&quot;</span> ),
+    (<span class='number'>5</span>, <span class='string'>&quot;MARPA_ERR_ANDIX_NEGATIVE&quot;</span>, <span class='string'>&quot;MARPA_ERR_ANDIX_NEGATIVE&quot;</span> ),
+    (<span class='number'>6</span>, <span class='string'>&quot;MARPA_ERR_BAD_SEPARATOR&quot;</span>, <span class='string'>&quot;Separator has invalid symbol ID&quot;</span> ),
+    (<span class='number'>7</span>, <span class='string'>&quot;MARPA_ERR_BOCAGE_ITERATION_EXHAUSTED&quot;</span>, <span class='string'>&quot;MARPA_ERR_BOCAGE_ITERATION_EXHAUSTED&quot;</span> ),
+    (<span class='number'>8</span>, <span class='string'>&quot;MARPA_ERR_COUNTED_NULLABLE&quot;</span>, <span class='string'>&quot;Nullable symbol on RHS of a sequence rule&quot;</span> ),
+    (<span class='number'>9</span>, <span class='string'>&quot;MARPA_ERR_DEVELOPMENT&quot;</span>, <span class='string'>&quot;Development error, see string&quot;</span> ),
+    (<span class='number'>10</span>, <span class='string'>&quot;MARPA_ERR_DUPLICATE_AND_NODE&quot;</span>, <span class='string'>&quot;MARPA_ERR_DUPLICATE_AND_NODE&quot;</span> ),
+    (<span class='number'>11</span>, <span class='string'>&quot;MARPA_ERR_DUPLICATE_RULE&quot;</span>, <span class='string'>&quot;Duplicate rule&quot;</span> ),
+    (<span class='number'>12</span>, <span class='string'>&quot;MARPA_ERR_DUPLICATE_TOKEN&quot;</span>, <span class='string'>&quot;Duplicate token&quot;</span> ),
+    (<span class='number'>13</span>, <span class='string'>&quot;MARPA_ERR_YIM_COUNT&quot;</span>, <span class='string'>&quot;Maximum number of Earley items exceeded&quot;</span> ),
+    (<span class='number'>14</span>, <span class='string'>&quot;MARPA_ERR_YIM_ID_INVALID&quot;</span>, <span class='string'>&quot;MARPA_ERR_YIM_ID_INVALID&quot;</span> ),
+    (<span class='number'>15</span>, <span class='string'>&quot;MARPA_ERR_EVENT_IX_NEGATIVE&quot;</span>, <span class='string'>&quot;Negative event index&quot;</span> ),
+    (<span class='number'>16</span>, <span class='string'>&quot;MARPA_ERR_EVENT_IX_OOB&quot;</span>, <span class='string'>&quot;No event at that index&quot;</span> ),
+    (<span class='number'>17</span>, <span class='string'>&quot;MARPA_ERR_GRAMMAR_HAS_CYCLE&quot;</span>, <span class='string'>&quot;Grammar has cycle&quot;</span> ),
+    (<span class='number'>18</span>, <span class='string'>&quot;MARPA_ERR_INACCESSIBLE_TOKEN&quot;</span>, <span class='string'>&quot;Token symbol is inaccessible&quot;</span> ),
+    (<span class='number'>19</span>, <span class='string'>&quot;MARPA_ERR_INTERNAL&quot;</span>, <span class='string'>&quot;MARPA_ERR_INTERNAL&quot;</span> ),
+    (<span class='number'>20</span>, <span class='string'>&quot;MARPA_ERR_INVALID_AHFA_ID&quot;</span>, <span class='string'>&quot;MARPA_ERR_INVALID_AHFA_ID&quot;</span> ),
+    (<span class='number'>21</span>, <span class='string'>&quot;MARPA_ERR_INVALID_AIMID&quot;</span>, <span class='string'>&quot;MARPA_ERR_INVALID_AIMID&quot;</span> ),
+    (<span class='number'>22</span>, <span class='string'>&quot;MARPA_ERR_INVALID_BOOLEAN&quot;</span>, <span class='string'>&quot;Argument is not boolean&quot;</span> ),
+    (<span class='number'>23</span>, <span class='string'>&quot;MARPA_ERR_INVALID_IRLID&quot;</span>, <span class='string'>&quot;MARPA_ERR_INVALID_IRLID&quot;</span> ),
+    (<span class='number'>24</span>, <span class='string'>&quot;MARPA_ERR_INVALID_NSYID&quot;</span>, <span class='string'>&quot;MARPA_ERR_INVALID_NSYID&quot;</span> ),
+    (<span class='number'>25</span>, <span class='string'>&quot;MARPA_ERR_INVALID_LOCATION&quot;</span>, <span class='string'>&quot;Location is not valid&quot;</span> ),
+    (<span class='number'>26</span>, <span class='string'>&quot;MARPA_ERR_INVALID_RULE_ID&quot;</span>, <span class='string'>&quot;Rule ID is malformed&quot;</span> ),
+    (<span class='number'>27</span>, <span class='string'>&quot;MARPA_ERR_INVALID_START_SYMBOL&quot;</span>, <span class='string'>&quot;Specified start symbol is not valid&quot;</span> ),
+    (<span class='number'>28</span>, <span class='string'>&quot;MARPA_ERR_INVALID_SYMBOL_ID&quot;</span>, <span class='string'>&quot;Symbol ID is malformed&quot;</span> ),
+    (<span class='number'>29</span>, <span class='string'>&quot;MARPA_ERR_I_AM_NOT_OK&quot;</span>, <span class='string'>&quot;Marpa is in a not OK state&quot;</span> ),
+    (<span class='number'>30</span>, <span class='string'>&quot;MARPA_ERR_MAJOR_VERSION_MISMATCH&quot;</span>, <span class='string'>&quot;Libmarpa major version number is a mismatch&quot;</span> ),
+    (<span class='number'>31</span>, <span class='string'>&quot;MARPA_ERR_MICRO_VERSION_MISMATCH&quot;</span>, <span class='string'>&quot;Libmarpa micro version number is a mismatch&quot;</span> ),
+    (<span class='number'>32</span>, <span class='string'>&quot;MARPA_ERR_MINOR_VERSION_MISMATCH&quot;</span>, <span class='string'>&quot;Libmarpa minor version number is a mismatch&quot;</span> ),
+    (<span class='number'>33</span>, <span class='string'>&quot;MARPA_ERR_NOOKID_NEGATIVE&quot;</span>, <span class='string'>&quot;MARPA_ERR_NOOKID_NEGATIVE&quot;</span> ),
+    (<span class='number'>34</span>, <span class='string'>&quot;MARPA_ERR_NOT_PRECOMPUTED&quot;</span>, <span class='string'>&quot;This grammar is not precomputed&quot;</span> ),
+    (<span class='number'>35</span>, <span class='string'>&quot;MARPA_ERR_NOT_TRACING_COMPLETION_LINKS&quot;</span>, <span class='string'>&quot;MARPA_ERR_NOT_TRACING_COMPLETION_LINKS&quot;</span> ),
+    (<span class='number'>36</span>, <span class='string'>&quot;MARPA_ERR_NOT_TRACING_LEO_LINKS&quot;</span>, <span class='string'>&quot;MARPA_ERR_NOT_TRACING_LEO_LINKS&quot;</span> ),
+    (<span class='number'>37</span>, <span class='string'>&quot;MARPA_ERR_NOT_TRACING_TOKEN_LINKS&quot;</span>, <span class='string'>&quot;MARPA_ERR_NOT_TRACING_TOKEN_LINKS&quot;</span> ),
+    (<span class='number'>38</span>, <span class='string'>&quot;MARPA_ERR_NO_AND_NODES&quot;</span>, <span class='string'>&quot;MARPA_ERR_NO_AND_NODES&quot;</span> ),
+    (<span class='number'>39</span>, <span class='string'>&quot;MARPA_ERR_NO_EARLEY_SET_AT_LOCATION&quot;</span>, <span class='string'>&quot;Earley set ID is after latest Earley set&quot;</span> ),
+    (<span class='number'>40</span>, <span class='string'>&quot;MARPA_ERR_NO_OR_NODES&quot;</span>, <span class='string'>&quot;MARPA_ERR_NO_OR_NODES&quot;</span> ),
+    (<span class='number'>41</span>, <span class='string'>&quot;MARPA_ERR_NO_PARSE&quot;</span>, <span class='string'>&quot;No parse&quot;</span> ),
+    (<span class='number'>42</span>, <span class='string'>&quot;MARPA_ERR_NO_RULES&quot;</span>, <span class='string'>&quot;This grammar does not have any rules&quot;</span> ),
+    (<span class='number'>43</span>, <span class='string'>&quot;MARPA_ERR_NO_START_SYMBOL&quot;</span>, <span class='string'>&quot;This grammar has no start symbol&quot;</span> ),
+    (<span class='number'>44</span>, <span class='string'>&quot;MARPA_ERR_NO_TOKEN_EXPECTED_HERE&quot;</span>, <span class='string'>&quot;No token is expected at this earleme location&quot;</span> ),
+    (<span class='number'>45</span>, <span class='string'>&quot;MARPA_ERR_NO_TRACE_YIM&quot;</span>, <span class='string'>&quot;MARPA_ERR_NO_TRACE_YIM&quot;</span> ),
+    (<span class='number'>46</span>, <span class='string'>&quot;MARPA_ERR_NO_TRACE_YS&quot;</span>, <span class='string'>&quot;MARPA_ERR_NO_TRACE_YS&quot;</span> ),
+    (<span class='number'>47</span>, <span class='string'>&quot;MARPA_ERR_NO_TRACE_PIM&quot;</span>, <span class='string'>&quot;MARPA_ERR_NO_TRACE_PIM&quot;</span> ),
+    (<span class='number'>48</span>, <span class='string'>&quot;MARPA_ERR_NO_TRACE_SRCL&quot;</span>, <span class='string'>&quot;MARPA_ERR_NO_TRACE_SRCL&quot;</span> ),
+    (<span class='number'>49</span>, <span class='string'>&quot;MARPA_ERR_NULLING_TERMINAL&quot;</span>, <span class='string'>&quot;A symbol is both terminal and nulling&quot;</span> ),
+    (<span class='number'>50</span>, <span class='string'>&quot;MARPA_ERR_ORDER_FROZEN&quot;</span>, <span class='string'>&quot;The ordering is frozen&quot;</span> ),
+    (<span class='number'>51</span>, <span class='string'>&quot;MARPA_ERR_ORID_NEGATIVE&quot;</span>, <span class='string'>&quot;MARPA_ERR_ORID_NEGATIVE&quot;</span> ),
+    (<span class='number'>52</span>, <span class='string'>&quot;MARPA_ERR_OR_ALREADY_ORDERED&quot;</span>, <span class='string'>&quot;MARPA_ERR_OR_ALREADY_ORDERED&quot;</span> ),
+    (<span class='number'>53</span>, <span class='string'>&quot;MARPA_ERR_PARSE_EXHAUSTED&quot;</span>, <span class='string'>&quot;The parse is exhausted&quot;</span> ),
+    (<span class='number'>54</span>, <span class='string'>&quot;MARPA_ERR_PARSE_TOO_LONG&quot;</span>, <span class='string'>&quot;This input would make the parse too long&quot;</span> ),
+    (<span class='number'>55</span>, <span class='string'>&quot;MARPA_ERR_PIM_IS_NOT_LIM&quot;</span>, <span class='string'>&quot;MARPA_ERR_PIM_IS_NOT_LIM&quot;</span> ),
+    (<span class='number'>56</span>, <span class='string'>&quot;MARPA_ERR_POINTER_ARG_NULL&quot;</span>, <span class='string'>&quot;An argument is null when it should not be&quot;</span> ),
+    (<span class='number'>57</span>, <span class='string'>&quot;MARPA_ERR_PRECOMPUTED&quot;</span>, <span class='string'>&quot;This grammar is precomputed&quot;</span> ),
+    (<span class='number'>58</span>, <span class='string'>&quot;MARPA_ERR_PROGRESS_REPORT_EXHAUSTED&quot;</span>, <span class='string'>&quot;The progress report is exhausted&quot;</span> ),
+    (<span class='number'>59</span>, <span class='string'>&quot;MARPA_ERR_PROGRESS_REPORT_NOT_STARTED&quot;</span>, <span class='string'>&quot;No progress report has been started&quot;</span> ),
+    (<span class='number'>60</span>, <span class='string'>&quot;MARPA_ERR_RECCE_NOT_ACCEPTING_INPUT&quot;</span>, <span class='string'>&quot;The recognizer is not accepting input&quot;</span> ),
+    (<span class='number'>61</span>, <span class='string'>&quot;MARPA_ERR_RECCE_NOT_STARTED&quot;</span>, <span class='string'>&quot;The recognizer has not been started&quot;</span> ),
+    (<span class='number'>62</span>, <span class='string'>&quot;MARPA_ERR_RECCE_STARTED&quot;</span>, <span class='string'>&quot;The recognizer has been started&quot;</span> ),
+    (<span class='number'>63</span>, <span class='string'>&quot;MARPA_ERR_RHS_IX_NEGATIVE&quot;</span>, <span class='string'>&quot;RHS index cannot be negative&quot;</span> ),
+    (<span class='number'>64</span>, <span class='string'>&quot;MARPA_ERR_RHS_IX_OOB&quot;</span>, <span class='string'>&quot;RHS index must be less than rule length&quot;</span> ),
+    (<span class='number'>65</span>, <span class='string'>&quot;MARPA_ERR_RHS_TOO_LONG&quot;</span>, <span class='string'>&quot;The RHS is too long&quot;</span> ),
+    (<span class='number'>66</span>, <span class='string'>&quot;MARPA_ERR_SEQUENCE_LHS_NOT_UNIQUE&quot;</span>, <span class='string'>&quot;LHS of sequence rule would not be unique&quot;</span> ),
+    (<span class='number'>67</span>, <span class='string'>&quot;MARPA_ERR_SOURCE_TYPE_IS_AMBIGUOUS&quot;</span>, <span class='string'>&quot;MARPA_ERR_SOURCE_TYPE_IS_AMBIGUOUS&quot;</span> ),
+    (<span class='number'>68</span>, <span class='string'>&quot;MARPA_ERR_SOURCE_TYPE_IS_COMPLETION&quot;</span>, <span class='string'>&quot;MARPA_ERR_SOURCE_TYPE_IS_COMPLETION&quot;</span> ),
+    (<span class='number'>69</span>, <span class='string'>&quot;MARPA_ERR_SOURCE_TYPE_IS_LEO&quot;</span>, <span class='string'>&quot;MARPA_ERR_SOURCE_TYPE_IS_LEO&quot;</span> ),
+    (<span class='number'>70</span>, <span class='string'>&quot;MARPA_ERR_SOURCE_TYPE_IS_NONE&quot;</span>, <span class='string'>&quot;MARPA_ERR_SOURCE_TYPE_IS_NONE&quot;</span> ),
+    (<span class='number'>71</span>, <span class='string'>&quot;MARPA_ERR_SOURCE_TYPE_IS_TOKEN&quot;</span>, <span class='string'>&quot;MARPA_ERR_SOURCE_TYPE_IS_TOKEN&quot;</span> ),
+    (<span class='number'>72</span>, <span class='string'>&quot;MARPA_ERR_SOURCE_TYPE_IS_UNKNOWN&quot;</span>, <span class='string'>&quot;MARPA_ERR_SOURCE_TYPE_IS_UNKNOWN&quot;</span> ),
+    (<span class='number'>73</span>, <span class='string'>&quot;MARPA_ERR_START_NOT_LHS&quot;</span>, <span class='string'>&quot;Start symbol not on LHS of any rule&quot;</span> ),
+    (<span class='number'>74</span>, <span class='string'>&quot;MARPA_ERR_SYMBOL_VALUED_CONFLICT&quot;</span>, <span class='string'>&quot;Symbol is treated both as valued and unvalued&quot;</span> ),
+    (<span class='number'>75</span>, <span class='string'>&quot;MARPA_ERR_TERMINAL_IS_LOCKED&quot;</span>, <span class='string'>&quot;The terminal status of the symbol is locked&quot;</span> ),
+    (<span class='number'>76</span>, <span class='string'>&quot;MARPA_ERR_TOKEN_IS_NOT_TERMINAL&quot;</span>, <span class='string'>&quot;Token symbol must be a terminal&quot;</span> ),
+    (<span class='number'>77</span>, <span class='string'>&quot;MARPA_ERR_TOKEN_LENGTH_LE_ZERO&quot;</span>, <span class='string'>&quot;Token length must greater than zero&quot;</span> ),
+    (<span class='number'>78</span>, <span class='string'>&quot;MARPA_ERR_TOKEN_TOO_LONG&quot;</span>, <span class='string'>&quot;Token is too long&quot;</span> ),
+    (<span class='number'>79</span>, <span class='string'>&quot;MARPA_ERR_TREE_EXHAUSTED&quot;</span>, <span class='string'>&quot;Tree iterator is exhausted&quot;</span> ),
+    (<span class='number'>80</span>, <span class='string'>&quot;MARPA_ERR_TREE_PAUSED&quot;</span>, <span class='string'>&quot;Tree iterator is paused&quot;</span> ),
+    (<span class='number'>81</span>, <span class='string'>&quot;MARPA_ERR_UNEXPECTED_TOKEN_ID&quot;</span>, <span class='string'>&quot;Unexpected token&quot;</span> ),
+    (<span class='number'>82</span>, <span class='string'>&quot;MARPA_ERR_UNPRODUCTIVE_START&quot;</span>, <span class='string'>&quot;Unproductive start symbol&quot;</span> ),
+    (<span class='number'>83</span>, <span class='string'>&quot;MARPA_ERR_VALUATOR_INACTIVE&quot;</span>, <span class='string'>&quot;Valuator inactive&quot;</span> ),
+    (<span class='number'>84</span>, <span class='string'>&quot;MARPA_ERR_VALUED_IS_LOCKED&quot;</span>, <span class='string'>&quot;The valued status of the symbol is locked&quot;</span> ),
+    (<span class='number'>85</span>, <span class='string'>&quot;MARPA_ERR_RANK_TOO_LOW&quot;</span>, <span class='string'>&quot;Rule or symbol rank too low&quot;</span> ),
+    (<span class='number'>86</span>, <span class='string'>&quot;MARPA_ERR_RANK_TOO_HIGH&quot;</span>, <span class='string'>&quot;Rule or symbol rank too high&quot;</span> ),
+    (<span class='number'>87</span>, <span class='string'>&quot;MARPA_ERR_SYMBOL_IS_NULLING&quot;</span>, <span class='string'>&quot;Symbol is nulling&quot;</span> ),
+    (<span class='number'>88</span>, <span class='string'>&quot;MARPA_ERR_SYMBOL_IS_UNUSED&quot;</span>, <span class='string'>&quot;Symbol is not used&quot;</span> ),
+    (<span class='number'>89</span>, <span class='string'>&quot;MARPA_ERR_NO_SUCH_RULE_ID&quot;</span>, <span class='string'>&quot;No rule with this ID exists&quot;</span> ),
+    (<span class='number'>90</span>, <span class='string'>&quot;MARPA_ERR_NO_SUCH_SYMBOL_ID&quot;</span>, <span class='string'>&quot;No symbol with this ID exists&quot;</span> ),
+    (<span class='number'>91</span>, <span class='string'>&quot;MARPA_ERR_BEFORE_FIRST_TREE&quot;</span>, <span class='string'>&quot;Tree iterator is before first tree&quot;</span> ),
+    (<span class='number'>92</span>, <span class='string'>&quot;MARPA_ERR_SYMBOL_IS_NOT_COMPLETION_EVENT&quot;</span>, <span class='string'>&quot;Symbol is not set up for completion events&quot;</span> ),
+    (<span class='number'>93</span>, <span class='string'>&quot;MARPA_ERR_SYMBOL_IS_NOT_NULLED_EVENT&quot;</span>, <span class='string'>&quot;Symbol is not set up for nulled events&quot;</span> ),
+    (<span class='number'>94</span>, <span class='string'>&quot;MARPA_ERR_SYMBOL_IS_NOT_PREDICTION_EVENT&quot;</span>, <span class='string'>&quot;Symbol is not set up for prediction events&quot;</span> ),
+    (<span class='number'>95</span>, <span class='string'>&quot;MARPA_ERR_RECCE_IS_INCONSISTENT&quot;</span>, <span class='string'>&quot;MARPA_ERR_RECCE_IS_INCONSISTENT&quot;</span> ),
+    (<span class='number'>96</span>, <span class='string'>&quot;MARPA_ERR_INVALID_ASSERTION_ID&quot;</span>, <span class='string'>&quot;Assertion ID is malformed&quot;</span> ),
+    (<span class='number'>97</span>, <span class='string'>&quot;MARPA_ERR_NO_SUCH_ASSERTION_ID&quot;</span>, <span class='string'>&quot;No assertion with this ID exists&quot;</span> ),
+    (<span class='number'>98</span>, <span class='string'>&quot;MARPA_ERR_HEADERS_DO_NOT_MATCH&quot;</span>, <span class='string'>&quot;Internal error: Libmarpa was built incorrectly&quot;</span> ),
+    (<span class='number'>99</span>, <span class='string'>&quot;MARPA_ERR_NOT_A_SEQUENCE&quot;</span>, <span class='string'>&quot;Rule is not a sequence&quot;</span> ),
+    ];
+</pre>
+</section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../../";
+        window.currentCrate = "marpa";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../../jquery.js"></script>
+    <script src="../../../main.js"></script>
+    
+    <script defer src="../../../search-index.js"></script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Grammar` struct in crate `marpa`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Grammar">
+
+    <title>marpa::thin::Grammar - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>marpa</a>::<wbr><a href='index.html'>thin</a></p><script>window.sidebarCurrent = {name: 'Grammar', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>marpa</a>::<wbr><a href='index.html'>thin</a>::<wbr><a class='struct' href=''>Grammar</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-33' class='srclink' href='../../src/marpa/src/thin/grammar.rs.html#16-18' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Grammar {
+    // some fields omitted
+}</pre><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../../marpa/thin/struct.Grammar.html' title='marpa::thin::Grammar'>Grammar</a></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>() -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='struct' href='../../marpa/thin/struct.Grammar.html' title='marpa::thin::Grammar'>Grammar</a>&gt;</code></h4>
+<h4 id='method.with_config' class='method'><code>fn <a href='#method.with_config' class='fnname'>with_config</a>(cfg: <a class='struct' href='../../marpa/thin/struct.Config.html' title='marpa::thin::Config'>Config</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='struct' href='../../marpa/thin/struct.Grammar.html' title='marpa::thin::Grammar'>Grammar</a>&gt;</code></h4>
+<h4 id='method.error_or' class='method'><code>fn <a href='#method.error_or' class='fnname'>error_or</a>&lt;T&gt;(&amp;self, s: &amp;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.str.html'>str</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;T&gt;</code></h4>
+<h4 id='method.new_symbol' class='method'><code>fn <a href='#method.new_symbol' class='fnname'>new_symbol</a>(&amp;mut self) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>&gt;</code></h4>
+<h4 id='method.get_start_symbol' class='method'><code>fn <a href='#method.get_start_symbol' class='fnname'>get_start_symbol</a>(&amp;self) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>&gt;</code></h4>
+<h4 id='method.set_start_symbol' class='method'><code>fn <a href='#method.set_start_symbol' class='fnname'>set_start_symbol</a>(&amp;mut self, sym: <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>&gt;</code></h4>
+<h4 id='method.num_symbols' class='method'><code>fn <a href='#method.num_symbols' class='fnname'>num_symbols</a>(&amp;self) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>&gt;</code></h4>
+<h4 id='method.symbols' class='method'><code>fn <a href='#method.symbols' class='fnname'>symbols</a>(&amp;self) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='type' href='../../marpa/thin/type.SymIter.html' title='marpa::thin::SymIter'>SymIter</a>&gt;</code></h4>
+<h4 id='method.symbol_is_accessible' class='method'><code>fn <a href='#method.symbol_is_accessible' class='fnname'>symbol_is_accessible</a>(&amp;self, sym: <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;</code></h4>
+<h4 id='method.symbol_is_nullable' class='method'><code>fn <a href='#method.symbol_is_nullable' class='fnname'>symbol_is_nullable</a>(&amp;self, sym: <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;</code></h4>
+<h4 id='method.symbol_is_nulling' class='method'><code>fn <a href='#method.symbol_is_nulling' class='fnname'>symbol_is_nulling</a>(&amp;self, sym: <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;</code></h4>
+<h4 id='method.symbol_is_productive' class='method'><code>fn <a href='#method.symbol_is_productive' class='fnname'>symbol_is_productive</a>(&amp;self, sym: <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;</code></h4>
+<h4 id='method.symbol_is_terminal' class='method'><code>fn <a href='#method.symbol_is_terminal' class='fnname'>symbol_is_terminal</a>(&amp;self, sym: <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;</code></h4>
+<h4 id='method.symbol_set_terminal' class='method'><code>fn <a href='#method.symbol_set_terminal' class='fnname'>symbol_set_terminal</a>(&amp;mut self, sym: <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>, term: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;</code></h4>
+<h4 id='method.new_rule' class='method'><code>fn <a href='#method.new_rule' class='fnname'>new_rule</a>(&amp;mut self, lhs: <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>, rhs: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='type' href='../../marpa/thin/type.Rule.html' title='marpa::thin::Rule'>Rule</a>&gt;</code></h4>
+<h4 id='method.rules' class='method'><code>fn <a href='#method.rules' class='fnname'>rules</a>(&amp;self) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='type' href='../../marpa/thin/type.RuleIter.html' title='marpa::thin::RuleIter'>RuleIter</a>&gt;</code></h4>
+<h4 id='method.rule_is_accessible' class='method'><code>fn <a href='#method.rule_is_accessible' class='fnname'>rule_is_accessible</a>(&amp;self, rule: <a class='type' href='../../marpa/thin/type.Rule.html' title='marpa::thin::Rule'>Rule</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;</code></h4>
+<h4 id='method.rule_is_nullable' class='method'><code>fn <a href='#method.rule_is_nullable' class='fnname'>rule_is_nullable</a>(&amp;self, rule: <a class='type' href='../../marpa/thin/type.Rule.html' title='marpa::thin::Rule'>Rule</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;</code></h4>
+<h4 id='method.rule_is_nulling' class='method'><code>fn <a href='#method.rule_is_nulling' class='fnname'>rule_is_nulling</a>(&amp;self, rule: <a class='type' href='../../marpa/thin/type.Rule.html' title='marpa::thin::Rule'>Rule</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;</code></h4>
+<h4 id='method.rule_is_loop' class='method'><code>fn <a href='#method.rule_is_loop' class='fnname'>rule_is_loop</a>(&amp;self, rule: <a class='type' href='../../marpa/thin/type.Rule.html' title='marpa::thin::Rule'>Rule</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;</code></h4>
+<h4 id='method.rule_is_productive' class='method'><code>fn <a href='#method.rule_is_productive' class='fnname'>rule_is_productive</a>(&amp;self, rule: <a class='type' href='../../marpa/thin/type.Rule.html' title='marpa::thin::Rule'>Rule</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;</code></h4>
+<h4 id='method.rule_lhs' class='method'><code>fn <a href='#method.rule_lhs' class='fnname'>rule_lhs</a>(&amp;self, rule: <a class='type' href='../../marpa/thin/type.Rule.html' title='marpa::thin::Rule'>Rule</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>&gt;</code></h4>
+<h4 id='method.rule_length' class='method'><code>fn <a href='#method.rule_length' class='fnname'>rule_length</a>(&amp;self, rule: <a class='type' href='../../marpa/thin/type.Rule.html' title='marpa::thin::Rule'>Rule</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>&gt;</code></h4>
+<h4 id='method.rule_rhs_ix' class='method'><code>fn <a href='#method.rule_rhs_ix' class='fnname'>rule_rhs_ix</a>(&amp;self, rule: <a class='type' href='../../marpa/thin/type.Rule.html' title='marpa::thin::Rule'>Rule</a>, ix: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>&gt;</code></h4>
+<h4 id='method.rule_rhs' class='method'><code>fn <a href='#method.rule_rhs' class='fnname'>rule_rhs</a>(&amp;self, rule: <a class='type' href='../../marpa/thin/type.Rule.html' title='marpa::thin::Rule'>Rule</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>&gt;&gt;</code></h4>
+<h4 id='method.rule_is_proper_separation' class='method'><code>fn <a href='#method.rule_is_proper_separation' class='fnname'>rule_is_proper_separation</a>(&amp;self, rule: <a class='type' href='../../marpa/thin/type.Rule.html' title='marpa::thin::Rule'>Rule</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;</code></h4>
+<h4 id='method.sequence_min' class='method'><code>fn <a href='#method.sequence_min' class='fnname'>sequence_min</a>(&amp;self, rule: <a class='type' href='../../marpa/thin/type.Rule.html' title='marpa::thin::Rule'>Rule</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>&gt;</code></h4>
+<h4 id='method.rule_is_sequence' class='method'><code>fn <a href='#method.rule_is_sequence' class='fnname'>rule_is_sequence</a>(&amp;self, rule: <a class='type' href='../../marpa/thin/type.Rule.html' title='marpa::thin::Rule'>Rule</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;</code></h4>
+<h4 id='method.new_sequence' class='method'><code>fn <a href='#method.new_sequence' class='fnname'>new_sequence</a>(&amp;self, lhs: <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>, rhs: <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>, sep: <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>, nonempty: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>, proper: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='type' href='../../marpa/thin/type.Rule.html' title='marpa::thin::Rule'>Rule</a>&gt;</code></h4>
+<h4 id='method.sequence_separator' class='method'><code>fn <a href='#method.sequence_separator' class='fnname'>sequence_separator</a>(&amp;self, rule: <a class='type' href='../../marpa/thin/type.Rule.html' title='marpa::thin::Rule'>Rule</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='type' href='../../marpa/thin/type.Rule.html' title='marpa::thin::Rule'>Rule</a>&gt;</code></h4>
+<h4 id='method.symbol_is_counted' class='method'><code>fn <a href='#method.symbol_is_counted' class='fnname'>symbol_is_counted</a>(&amp;self, sym: <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;</code></h4>
+<h4 id='method.rule_rank_set' class='method'><code>fn <a href='#method.rule_rank_set' class='fnname'>rule_rank_set</a>(&amp;mut self, rule: <a class='type' href='../../marpa/thin/type.Rule.html' title='marpa::thin::Rule'>Rule</a>, rank: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<h4 id='method.rule_rank_get' class='method'><code>fn <a href='#method.rule_rank_get' class='fnname'>rule_rank_get</a>(&amp;self, rule: <a class='type' href='../../marpa/thin/type.Rule.html' title='marpa::thin::Rule'>Rule</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>&gt;</code></h4>
+<h4 id='method.rule_null_high_set' class='method'><code>fn <a href='#method.rule_null_high_set' class='fnname'>rule_null_high_set</a>(&amp;mut self, rule: <a class='type' href='../../marpa/thin/type.Rule.html' title='marpa::thin::Rule'>Rule</a>, high: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<h4 id='method.rule_null_high' class='method'><code>fn <a href='#method.rule_null_high' class='fnname'>rule_null_high</a>(&amp;mut self, rule: <a class='type' href='../../marpa/thin/type.Rule.html' title='marpa::thin::Rule'>Rule</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;</code></h4>
+<h4 id='method.completion_symbol_activate' class='method'><code>fn <a href='#method.completion_symbol_activate' class='fnname'>completion_symbol_activate</a>(&amp;mut self, sym: <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>, reactivate: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<h4 id='method.nulled_symbol_activate' class='method'><code>fn <a href='#method.nulled_symbol_activate' class='fnname'>nulled_symbol_activate</a>(&amp;mut self, sym: <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>, reactivate: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<h4 id='method.prediction_symbol_activate' class='method'><code>fn <a href='#method.prediction_symbol_activate' class='fnname'>prediction_symbol_activate</a>(&amp;mut self, sym: <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>, reactivate: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<h4 id='method.symbol_is_completion_event' class='method'><code>fn <a href='#method.symbol_is_completion_event' class='fnname'>symbol_is_completion_event</a>(&amp;mut self, sym: <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;</code></h4>
+<h4 id='method.symbol_is_completion_event_set' class='method'><code>fn <a href='#method.symbol_is_completion_event_set' class='fnname'>symbol_is_completion_event_set</a>(&amp;mut self, sym: <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>, val: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<h4 id='method.symbol_is_nulled_event' class='method'><code>fn <a href='#method.symbol_is_nulled_event' class='fnname'>symbol_is_nulled_event</a>(&amp;mut self, sym: <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;</code></h4>
+<h4 id='method.symbol_is_nulled_event_set' class='method'><code>fn <a href='#method.symbol_is_nulled_event_set' class='fnname'>symbol_is_nulled_event_set</a>(&amp;mut self, sym: <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>, val: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<h4 id='method.symbol_is_prediction_event' class='method'><code>fn <a href='#method.symbol_is_prediction_event' class='fnname'>symbol_is_prediction_event</a>(&amp;mut self, sym: <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;</code></h4>
+<h4 id='method.symbol_is_prediction_event_set' class='method'><code>fn <a href='#method.symbol_is_prediction_event_set' class='fnname'>symbol_is_prediction_event_set</a>(&amp;mut self, sym: <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>, val: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<h4 id='method.events' class='method'><code>fn <a href='#method.events' class='fnname'>events</a>(&amp;self) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='struct' href='../../marpa/thin/struct.EventIter.html' title='marpa::thin::EventIter'>EventIter</a>&gt;</code></h4>
+<h4 id='method.precompute' class='method'><code>fn <a href='#method.precompute' class='fnname'>precompute</a>(&amp;mut self) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<h4 id='method.is_precomputed' class='method'><code>fn <a href='#method.is_precomputed' class='fnname'>is_precomputed</a>(&amp;self) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;</code></h4>
+<h4 id='method.has_cycle' class='method'><code>fn <a href='#method.has_cycle' class='fnname'>has_cycle</a>(&amp;self) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;</code></h4>
+</div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../../marpa/thin/struct.Grammar.html' title='marpa::thin::Grammar'>Grammar</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../marpa/thin/struct.Grammar.html' title='marpa::thin::Grammar'>Grammar</a></code></h4>
+<h4 id='method.clone_from' class='method'><span class="since">1.0.0</span><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html' title='core::ops::Drop'>Drop</a> for <a class='struct' href='../../marpa/thin/struct.Grammar.html' title='marpa::thin::Grammar'>Grammar</a></code></h3><div class='impl-items'><h4 id='method.drop' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html#tymethod.drop' class='fnname'>drop</a>(&amp;mut self)</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "marpa";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

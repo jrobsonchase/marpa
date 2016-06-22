@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Grammar` struct in crate `marpa`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Grammar">
+
+    <title>marpa::grammar::Grammar - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>marpa</a>::<wbr><a href='index.html'>grammar</a></p><script>window.sidebarCurrent = {name: 'Grammar', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>marpa</a>::<wbr><a href='index.html'>grammar</a>::<wbr><a class='struct' href=''>Grammar</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-1402' class='srclink' href='../../src/marpa/src/grammar/mod.rs.html#5-8' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Grammar {
+    // some fields omitted
+}</pre><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../../marpa/grammar/struct.Grammar.html' title='marpa::grammar::Grammar'>Grammar</a></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>() -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='struct' href='../../marpa/grammar/struct.Grammar.html' title='marpa::grammar::Grammar'>Grammar</a>&gt;</code></h4>
+<h4 id='method.new_symbol' class='method'><code>fn <a href='#method.new_symbol' class='fnname'>new_symbol</a>(&amp;mut self) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;</code></h4>
+<h4 id='method.set_start' class='method'><code>fn <a href='#method.set_start' class='fnname'>set_start</a>(&amp;mut self, it: <a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;</code></h4>
+<h4 id='method.symbol' class='method'><code>fn <a href='#method.symbol' class='fnname'>symbol</a>(&amp;self, item: &amp;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>) -&gt; <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a></code></h4>
+<h4 id='method.symbols' class='method'><code>fn <a href='#method.symbols' class='fnname'>symbols</a>(&amp;self, items: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>&gt;</code></h4>
+<h4 id='method.unwrap' class='method'><code>fn <a href='#method.unwrap' class='fnname'>unwrap</a>(self) -&gt; <a class='struct' href='../../marpa/thin/struct.Grammar.html' title='marpa::thin::Grammar'>Grammar</a></code></h4>
+<h4 id='method.rule' class='method'><code>fn <a href='#method.rule' class='fnname'>rule</a>(&amp;mut self, lhs: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;, rhs: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;</code></h4>
+<h4 id='method.sequence' class='method'><code>fn <a href='#method.sequence' class='fnname'>sequence</a>(&amp;mut self, lhs: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;, rhs: <a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>, sep: <a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>, nonempty: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>, proper: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;</code></h4>
+<h4 id='method.plus' class='method'><code>fn <a href='#method.plus' class='fnname'>plus</a>(&amp;mut self, lhs: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;, rhs: <a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;</code></h4>
+<h4 id='method.star' class='method'><code>fn <a href='#method.star' class='fnname'>star</a>(&amp;mut self, lhs: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;, rhs: <a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;</code></h4>
+<h4 id='method.maybe' class='method'><code>fn <a href='#method.maybe' class='fnname'>maybe</a>(&amp;mut self, lhs: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;, rhs: <a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;</code></h4>
+<h4 id='method.alternative' class='method'><code>fn <a href='#method.alternative' class='fnname'>alternative</a>(&amp;mut self, lhs: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;, rhs: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;</code></h4>
+<h4 id='method.literal_string' class='method'><code>fn <a href='#method.literal_string' class='fnname'>literal_string</a>&lt;S: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>&gt;&gt;(&amp;mut self, lhs: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;, input: S) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;</code></h4>
+<h4 id='method.byte_range' class='method'><code>fn <a href='#method.byte_range' class='fnname'>byte_range</a>(&amp;mut self, lhs: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;, from: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>, to: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;</code></h4>
+<h4 id='method.byte_set' class='method'><code>fn <a href='#method.byte_set' class='fnname'>byte_set</a>(&amp;mut self, lhs: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;, bytes: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;</code></h4>
+<h4 id='method.inverse_byte_set' class='method'><code>fn <a href='#method.inverse_byte_set' class='fnname'>inverse_byte_set</a>(&amp;mut self, lhs: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;, bytes: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>&amp;[</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.u8.html'>u8</a><a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.slice.html'>]</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;</code></h4>
+<h4 id='method.char_range' class='method'><code>fn <a href='#method.char_range' class='fnname'>char_range</a>(&amp;mut self, lhs: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;, from: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.char.html'>char</a>, to: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.char.html'>char</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;</code></h4>
+<h4 id='method.string_set' class='method'><code>fn <a href='#method.string_set' class='fnname'>string_set</a>&lt;S: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>&gt;&gt;(&amp;mut self, lhs: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;, input: S) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;</code></h4>
+<h4 id='method.inverse_string_set' class='method'><code>fn <a href='#method.inverse_string_set' class='fnname'>inverse_string_set</a>&lt;S: <a class='trait' href='https://doc.rust-lang.org/nightly/core/convert/trait.Into.html' title='core::convert::Into'>Into</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/string/struct.String.html' title='collections::string::String'>String</a>&gt;&gt;(&amp;mut self, lhs: <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;, input: S) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='enum' href='../../marpa/grammar/enum.Item.html' title='marpa::grammar::Item'>Item</a>&gt;</code></h4>
+</div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html' title='core::default::Default'>Default</a> for <a class='struct' href='../../marpa/grammar/struct.Grammar.html' title='marpa::grammar::Grammar'>Grammar</a></code></h3><div class='impl-items'><h4 id='method.default' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/default/trait.Default.html#tymethod.default' class='fnname'>default</a>() -&gt; Self</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "marpa";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>

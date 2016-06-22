@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Recognizer` struct in crate `marpa`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Recognizer">
+
+    <title>marpa::thin::Recognizer - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../../main.css">
+    
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='../index.html'>marpa</a>::<wbr><a href='index.html'>thin</a></p><script>window.sidebarCurrent = {name: 'Recognizer', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='../index.html'>marpa</a>::<wbr><a href='index.html'>thin</a>::<wbr><a class='struct' href=''>Recognizer</a></span><span class='out-of-band'><span id='render-detail'>
+                   <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                       [<span class='inner'>&#x2212;</span>]
+                   </a>
+               </span><a id='src-305' class='srclink' href='../../src/marpa/src/thin/recognizer.rs.html#20-25' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Recognizer {
+    // some fields omitted
+}</pre><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../../marpa/thin/struct.Recognizer.html' title='marpa::thin::Recognizer'>Recognizer</a></code></h3><div class='impl-items'><h4 id='method.new' class='method'><code>fn <a href='#method.new' class='fnname'>new</a>(g: <a class='struct' href='../../marpa/thin/struct.Grammar.html' title='marpa::thin::Grammar'>Grammar</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='struct' href='../../marpa/thin/struct.Recognizer.html' title='marpa::thin::Recognizer'>Recognizer</a>&gt;</code></h4>
+<h4 id='method.start_input' class='method'><code>fn <a href='#method.start_input' class='fnname'>start_input</a>(&amp;mut self) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<h4 id='method.alternative' class='method'><code>fn <a href='#method.alternative' class='fnname'>alternative</a>(&amp;mut self, tok: <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>, val: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>, len: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<h4 id='method.earleme_complete' class='method'><code>fn <a href='#method.earleme_complete' class='fnname'>earleme_complete</a>(&amp;mut self) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>&gt;</code></h4>
+<h4 id='method.current_earleme' class='method'><code>fn <a href='#method.current_earleme' class='fnname'>current_earleme</a>(&amp;self) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;Earleme&gt;</code></h4>
+<h4 id='method.furthest_earleme' class='method'><code>fn <a href='#method.furthest_earleme' class='fnname'>furthest_earleme</a>(&amp;self) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;Earleme&gt;</code></h4>
+<h4 id='method.earleme' class='method'><code>fn <a href='#method.earleme' class='fnname'>earleme</a>(&amp;self, set: EarleySet) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;Earleme&gt;</code></h4>
+<h4 id='method.latest_earley_set' class='method'><code>fn <a href='#method.latest_earley_set' class='fnname'>latest_earley_set</a>(&amp;self) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;EarleySet&gt;</code></h4>
+<h4 id='method.earley_set_value' class='method'><code>fn <a href='#method.earley_set_value' class='fnname'>earley_set_value</a>(&amp;self, set: EarleySet) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.char.html'>char</a>&gt;</code></h4>
+<h4 id='method.latest_earley_set_value_set' class='method'><code>fn <a href='#method.latest_earley_set_value_set' class='fnname'>latest_earley_set_value_set</a>(&amp;self, c: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.char.html'>char</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<h4 id='method.completion_symbol_activate' class='method'><code>fn <a href='#method.completion_symbol_activate' class='fnname'>completion_symbol_activate</a>(&amp;mut self, sym: <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>, reactivate: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<h4 id='method.earley_item_warning_threshold_set' class='method'><code>fn <a href='#method.earley_item_warning_threshold_set' class='fnname'>earley_item_warning_threshold_set</a>(&amp;mut self, thresh: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a>)</code></h4>
+<h4 id='method.earley_item_warning_threshold' class='method'><code>fn <a href='#method.earley_item_warning_threshold' class='fnname'>earley_item_warning_threshold</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.i32.html'>i32</a></code></h4>
+<h4 id='method.expected_symbol_event_set' class='method'><code>fn <a href='#method.expected_symbol_event_set' class='fnname'>expected_symbol_event_set</a>(&amp;mut self, sym: <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>, expected: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<h4 id='method.is_exhausted' class='method'><code>fn <a href='#method.is_exhausted' class='fnname'>is_exhausted</a>(&amp;self) -&gt; <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a></code></h4>
+<h4 id='method.nulled_symbol_activate' class='method'><code>fn <a href='#method.nulled_symbol_activate' class='fnname'>nulled_symbol_activate</a>(&amp;mut self, sym: <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>, activate: <a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.tuple.html'>()</a>&gt;</code></h4>
+<h4 id='method.terminals_expected' class='method'><code>fn <a href='#method.terminals_expected' class='fnname'>terminals_expected</a>(&amp;self) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='struct' href='https://doc.rust-lang.org/nightly/collections/vec/struct.Vec.html' title='collections::vec::Vec'>Vec</a>&lt;<a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>&gt;&gt;</code></h4>
+<h4 id='method.terminal_is_expected' class='method'><code>fn <a href='#method.terminal_is_expected' class='fnname'>terminal_is_expected</a>(&amp;self, sym: <a class='type' href='../../marpa/thin/type.Symbol.html' title='marpa::thin::Symbol'>Symbol</a>) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='primitive' href='https://doc.rust-lang.org/nightly/std/primitive.bool.html'>bool</a>&gt;</code></h4>
+<h4 id='method.progress_report' class='method'><code>fn <a href='#method.progress_report' class='fnname'>progress_report</a>(&amp;self, set: EarleySet) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;ProgressReport&gt;</code></h4>
+<h4 id='method.events' class='method'><code>fn <a href='#method.events' class='fnname'>events</a>(&amp;self) -&gt; <a class='type' href='../../marpa/result/type.Result.html' title='marpa::result::Result'>Result</a>&lt;<a class='struct' href='../../marpa/thin/struct.EventIter.html' title='marpa::thin::EventIter'>EventIter</a>&gt;</code></h4>
+</div><h2 id='implementations'>Trait Implementations</h2><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html' title='core::clone::Clone'>Clone</a> for <a class='struct' href='../../marpa/thin/struct.Recognizer.html' title='marpa::thin::Recognizer'>Recognizer</a></code></h3><div class='impl-items'><h4 id='method.clone' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#tymethod.clone' class='fnname'>clone</a>(&amp;self) -&gt; <a class='struct' href='../../marpa/thin/struct.Recognizer.html' title='marpa::thin::Recognizer'>Recognizer</a></code></h4>
+<h4 id='method.clone_from' class='method'><span class="since">1.0.0</span><code>fn <a href='https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html#method.clone_from' class='fnname'>clone_from</a>(&amp;mut self, source: &amp;Self)</code></h4>
+</div><h3 class='impl'><code>impl <a class='trait' href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html' title='core::ops::Drop'>Drop</a> for <a class='struct' href='../../marpa/thin/struct.Recognizer.html' title='marpa::thin::Recognizer'>Recognizer</a></code></h3><div class='impl-items'><h4 id='method.drop' class='method'><code>fn <a href='https://doc.rust-lang.org/nightly/core/ops/trait.Drop.html#tymethod.drop' class='fnname'>drop</a>(&amp;mut self)</code></h4>
+</div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code> or <code>* -> vec</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../../";
+        window.currentCrate = "marpa";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../../jquery.js"></script>
+    <script src="../../main.js"></script>
+    
+    <script defer src="../../search-index.js"></script>
+</body>
+</html>
