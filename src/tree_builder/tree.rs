@@ -1,10 +1,10 @@
-use lexer::token::Token;
+use crate::lexer::token::Token;
 use std::cell::RefCell;
 use std::fmt;
 use std::ops::Deref;
 use std::rc::Rc;
-use thin::Rule;
-use thin::Symbol;
+use crate::thin::Rule;
+use crate::thin::Symbol;
 
 #[derive(Clone, Default, Debug)]
 pub struct Handle<T: Token>(Rc<RefCell<Node<T>>>);
@@ -28,32 +28,32 @@ where
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Node::Tree(ref rule, ref children) => {
-                try!(write!(f, "Tree({},", rule));
+                write!(f, "Tree({},", rule)?;
                 for child in children {
-                    try!(write!(f, " {}", child));
+                    write!(f, " {}", child)?;
                 }
-                try!(write!(f, ")"));
+                write!(f, ")")?;
             }
             Node::Rule(ref rule, ref children) => {
-                try!(write!(f, "Rule({},", rule));
+                write!(f, "Rule({},", rule)?;
                 for child in children {
-                    try!(write!(f, " {}", child));
+                    write!(f, " {}", child)?;
                 }
-                try!(write!(f, ")"));
+                write!(f, ")")?;
             }
             Node::Token(ty, ref val) => {
-                try!(write!(f, "Token({}, ", ty));
+                write!(f, "Token({}, ", ty)?;
                 match ::std::str::from_utf8(&val) {
-                    Ok(s) => try!(write!(f, "\"{}\"", s)),
-                    Err(_) => try!(write!(f, "{:?}", val)),
+                    Ok(s) => write!(f, "\"{}\"", s)?,
+                    Err(_) => write!(f, "{:?}", val)?
                 }
-                try!(write!(f, ")"));
+                write!(f, ")")?;
             }
             Node::Leaf(ref tok) => {
-                try!(write!(f, "Leaf({})", tok));
+                write!(f, "Leaf({})", tok)?;
             }
             Node::Null(sym) => {
-                try!(write!(f, "Null({})", sym));
+                write!(f, "Null({})", sym)?;
             }
         }
         Ok(())

@@ -1,9 +1,9 @@
-use thin::bocage as b;
-use thin::bocage::Bocage;
-use thin::grammar::Grammar;
-use thin::libmarpa_sys::*;
+use crate::thin::bocage as b;
+use crate::thin::bocage::Bocage;
+use crate::thin::grammar::Grammar;
+use crate::thin::libmarpa_sys::*;
 
-use result::*;
+use crate::result::*;
 
 pub struct Order {
     internal: Marpa_Order,

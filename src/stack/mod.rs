@@ -1,5 +1,5 @@
-use thin::Step;
-use thin::Value;
+use crate::thin::Step;
+use crate::thin::Value;
 
 pub mod processor;
 

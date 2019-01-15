@@ -1,6 +1,6 @@
-use result::Result;
+use crate::result::Result;
 use std::collections::HashMap;
-use thin;
+use crate::thin;
 
 pub struct Grammar {
     internal: thin::Grammar,
@@ -41,12 +41,12 @@ impl Default for Grammar {
 impl Grammar {
     pub fn new() -> Result<Self> {
         let mut g = Grammar {
-            internal: try!(thin::Grammar::new()),
+            internal: thin::Grammar::new()?,
             ..Default::default()
         };
 
         for _ in 0..256 {
-            try!(g.internal.new_symbol());
+            g.internal.new_symbol()?;
         }
 
         Ok(g)
@@ -60,12 +60,12 @@ impl Grammar {
     }
 
     pub fn new_symbol(&mut self) -> Result<Item> {
-        Ok(Item::Symbol(try!(self.internal.new_symbol())))
+        Ok(Item::Symbol(self.internal.new_symbol()?))
     }
 
     pub fn set_start(&mut self, it: Item) -> Result<Item> {
         let sym = self.symbol(it);
-        try!(self.internal.set_start_symbol(sym));
+        self.internal.set_start_symbol(sym)?;
         Ok(it)
     }
 
@@ -85,69 +85,69 @@ impl Grammar {
     }
 
     pub fn rule(&mut self, lhs: Option<Item>, rhs: &[Item]) -> Result<Item> {
-        let lhs = try!(self.get_lhs(lhs));
+        let lhs = self.get_lhs(lhs)?;
         let rhs = self.symbols(rhs);
-        let r = try!(self.internal.new_rule(lhs, &rhs));
+        let r = self.internal.new_rule(lhs, &rhs)?;
         self.rules.insert(r, lhs);
         Ok(Item::Rule(r))
     }
 
     pub fn sequence(&mut self, lhs: Option<Item>, rhs: Item, sep: Item, nonempty: bool, proper: bool) -> Result<Item> {
-        let lhs = try!(self.get_lhs(lhs));
+        let lhs = self.get_lhs(lhs)?;
         let sep = self.symbol(sep);
         let rhs = self.symbol(rhs);
-        let r = try!(self.internal.new_sequence(lhs, rhs, sep, proper, nonempty));
+        let r = self.internal.new_sequence(lhs, rhs, sep, proper, nonempty)?;
         self.rules.insert(r, lhs);
         Ok(Item::Rule(r))
     }
 
     pub fn plus(&mut self, lhs: Option<Item>, rhs: Item) -> Result<Item> {
-        let lhs = try!(self.get_lhs(lhs));
-        let internal = try!(self.internal.new_symbol());
-        let rec = try!(self.internal.new_symbol());
+        let lhs = self.get_lhs(lhs)?;
+        let internal = self.internal.new_symbol()?;
+        let rec = self.internal.new_symbol()?;
         let rhs = self.symbol(rhs);
-        try!(self.internal.new_rule(internal, &[rhs]));
-        try!(self.internal.new_rule(rec, &[internal]));
-        try!(self.internal.new_rule(rec, &[rec, internal]));
-        let r = try!(self.internal.new_rule(lhs, &[rec]));
+        self.internal.new_rule(internal, &[rhs])?;
+        self.internal.new_rule(rec, &[internal])?;
+        self.internal.new_rule(rec, &[rec, internal])?;
+        let r = self.internal.new_rule(lhs, &[rec])?;
         self.rules.insert(r, lhs);
         Ok(Item::Rule(r))
     }
 
     pub fn star(&mut self, lhs: Option<Item>, rhs: Item) -> Result<Item> {
-        let lhs = try!(self.get_lhs(lhs));
-        let internal = try!(self.internal.new_symbol());
-        let rec = try!(self.internal.new_symbol());
+        let lhs = self.get_lhs(lhs)?;
+        let internal = self.internal.new_symbol()?;
+        let rec = self.internal.new_symbol()?;
         let rhs = self.symbol(rhs);
-        try!(self.internal.new_rule(internal, &[rhs]));
-        try!(self.internal.new_rule(rec, &[]));
-        try!(self.internal.new_rule(rec, &[rec, internal]));
-        let r = try!(self.internal.new_rule(lhs, &[rec]));
+        self.internal.new_rule(internal, &[rhs])?;
+        self.internal.new_rule(rec, &[])?;
+        self.internal.new_rule(rec, &[rec, internal])?;
+        let r = self.internal.new_rule(lhs, &[rec])?;
         self.rules.insert(r, lhs);
         Ok(Item::Rule(r))
     }
 
     pub fn maybe(&mut self, lhs: Option<Item>, rhs: Item) -> Result<Item> {
-        let lhs = try!(self.get_lhs(lhs));
+        let lhs = self.get_lhs(lhs)?;
         let rhs = self.symbol(rhs);
-        let internal = try!(self.internal.new_symbol());
-        try!(self.internal.new_rule(internal, &[]));
-        try!(self.internal.new_rule(internal, &[rhs]));
-        let r = try!(self.internal.new_rule(lhs, &[internal]));
+        let internal = self.internal.new_symbol()?;
+        self.internal.new_rule(internal, &[])?;
+        self.internal.new_rule(internal, &[rhs])?;
+        let r = self.internal.new_rule(lhs, &[internal])?;
         self.rules.insert(r, lhs);
         Ok(Item::Rule(r))
     }
 
     pub fn alternative(&mut self, lhs: Option<Item>, rhs: &[Item]) -> Result<Item> {
-        let lhs = try!(self.get_lhs(lhs));
-        let internal = try!(self.internal.new_symbol());
+        let lhs = self.get_lhs(lhs)?;
+        let internal = self.internal.new_symbol()?;
 
         for it in rhs.iter() {
             let it = self.symbol(*it);
-            try!(self.internal.new_rule(internal, &[it]));
+            self.internal.new_rule(internal, &[it])?;
         }
 
-        let r = try!(self.internal.new_rule(lhs, &[internal]));
+        let r = self.internal.new_rule(lhs, &[internal])?;
         self.rules.insert(r, lhs);
         Ok(Item::Rule(r))
     }
@@ -172,16 +172,16 @@ impl Grammar {
             set.insert(*b);
         }
 
-        let lhs = try!(self.get_lhs(lhs));
-        let internal = try!(self.internal.new_symbol());
+        let lhs = self.get_lhs(lhs)?;
+        let internal = self.internal.new_symbol()?;
 
         for b in (::std::ops::Range::<u16> { start: 0, end: 256 }) {
             if !set.contains(&(b as u8)) {
-                try!(self.internal.new_rule(internal, &[i32::from(b)]));
+                self.internal.new_rule(internal, &[i32::from(b)])?;
             }
         }
 
-        let r = try!(self.internal.new_rule(lhs, &[internal]));
+        let r = self.internal.new_rule(lhs, &[internal])?;
         self.rules.insert(r, lhs);
         Ok(Item::Rule(r))
     }

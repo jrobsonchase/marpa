@@ -1,8 +1,8 @@
-use thin::libmarpa_sys::*;
+use crate::thin::libmarpa_sys::*;
 
-use result::*;
+use crate::result::*;
 
-use thin::{Config, EventIter, Rule, RuleIter, SymIter, Symbol};
+use crate::thin::{Config, EventIter, Rule, RuleIter, SymIter, Symbol};
 
 use std::ptr;
 
@@ -35,7 +35,7 @@ impl Grammar {
         unsafe {
             let c_grammar = marpa_g_new(&mut cfg.internal());
 
-            try!(cfg.error());
+            cfg.error()?;
 
             assert!(marpa_g_force_valued(c_grammar) >= 0);
             Ok(Grammar { internal: c_grammar })
@@ -47,7 +47,7 @@ impl Grammar {
         unsafe {
             let c_grammar = marpa_g_new(&mut cfg.internal());
 
-            try!(cfg.error());
+            cfg.error()?;
 
             assert!(marpa_g_force_valued(c_grammar) >= 0);
             Ok(Grammar { internal: c_grammar })
@@ -105,7 +105,7 @@ impl Grammar {
     }
 
     pub fn symbols(&self) -> Result<SymIter> {
-        Ok(0..try!(self.num_symbols()))
+        Ok(0..self.num_symbols()?)
     }
 
     pub fn symbol_is_accessible(&self, sym: Symbol) -> Result<bool> {
@@ -259,10 +259,10 @@ impl Grammar {
     }
 
     pub fn rule_rhs(&self, rule: Rule) -> Result<Vec<Symbol>> {
-        let len = try!(self.rule_length(rule));
+        let len = self.rule_length(rule)?;
         let mut syms: Vec<Symbol> = vec![];
         for id in 0..len {
-            let sym = try!(self.rule_rhs_ix(rule, id));
+            let sym = self.rule_rhs_ix(rule, id)?;
 
             syms.push(sym);
         }
@@ -484,10 +484,10 @@ impl Grammar {
 
 #[cfg(test)]
 mod tests {
-    use thin::event::Event;
-    use thin::grammar::Grammar;
-    use thin::rule::Rule;
-    use thin::symbol::Symbol;
+    use crate::thin::event::Event;
+    use crate::thin::grammar::Grammar;
+    use crate::thin::rule::Rule;
+    use crate::thin::symbol::Symbol;
 
     fn new_grammar() -> Grammar {
         Grammar::new().unwrap()

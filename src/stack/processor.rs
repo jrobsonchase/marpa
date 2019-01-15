@@ -1,6 +1,6 @@
-use lexer::token::Token;
-use thin::Rule;
-use thin::Symbol;
+use crate::lexer::token::Token;
+use crate::thin::Rule;
+use crate::thin::Symbol;
 
 pub trait Processor {
     type Token: Token;

@@ -1,6 +1,6 @@
-use thin::libmarpa_sys::*;
+use crate::thin::libmarpa_sys::*;
 
-use result::*;
+use crate::result::*;
 use std::ptr;
 
 #[derive(Default)]

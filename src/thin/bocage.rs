@@ -1,10 +1,10 @@
-use thin::earley::*;
-use thin::grammar::Grammar;
-use thin::libmarpa_sys::*;
-use thin::recognizer as r;
-use thin::recognizer::Recognizer;
+use crate::thin::earley::*;
+use crate::thin::grammar::Grammar;
+use crate::thin::libmarpa_sys::*;
+use crate::thin::recognizer as r;
+use crate::thin::recognizer::Recognizer;
 
-use result::*;
+use crate::result::*;
 
 pub struct Bocage {
     internal: Marpa_Bocage,
@@ -74,7 +74,7 @@ impl Bocage {
 #[cfg(test)]
 mod tests {
 
-    use thin::*;
+    use crate::thin::*;
 
     #[test]
     fn create_bocage() {

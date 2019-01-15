@@ -1,9 +1,9 @@
-use lexer::token::Token;
-use lexer::token_source::TokenSource;
+use crate::lexer::token::Token;
+use crate::lexer::token_source::TokenSource;
 
-use result::Result;
+use crate::result::Result;
 
-use thin::{
+use crate::thin::{
     Bocage,
     Grammar,
     Order,
@@ -31,7 +31,7 @@ impl MarpaState {
     fn adv(&mut self) -> Result<MarpaState> {
         match self {
             G(ref mut g) => {
-                try!(g.precompute());
+                g.precompute()?;
                 Recognizer::new(g.clone()).map(R)
             }
             R(ref r) => Bocage::new(r.clone()).map(B),
@@ -72,19 +72,19 @@ impl Parser {
     }
 
     fn adv_marpa(&mut self) -> Result<()> {
-        self.state = try!(self.state.adv());
+        self.state = self.state.adv()?;
         Ok(())
     }
 
     pub fn run_recognizer<T: TokenSource<U>, U: Token>(&mut self, tokens: T) -> Result<Tree> {
         let mut tokens = tokens;
         if let G(_) = self.state {
-            try!(self.adv_marpa())
+            self.adv_marpa()?
         }
         {
             // limit recognizer borrow
             let r = get_state!(self, R);
-            try!(r.start_input());
+            r.start_input()?;
             loop {
                 if r.is_exhausted() {
                     break;
@@ -93,13 +93,13 @@ impl Parser {
                 match maybe_tok {
                     None => break,
                     Some(tok) => {
-                        try!(Parser::consume_tok(r, tok));
+                        Parser::consume_tok(r, tok)?;
                     }
                 }
             }
         }
         loop {
-            try!(self.adv_marpa());
+            self.adv_marpa()?;
             if let T(ref tree) = self.state {
                 return Ok(tree.clone());
             }
@@ -107,8 +107,8 @@ impl Parser {
     }
 
     fn consume_tok<U: Token>(r: &mut Recognizer, tok: U) -> Result<()> {
-        try!(r.alternative(tok.sym(), tok.value(), 1));
-        try!(r.earleme_complete());
+        r.alternative(tok.sym(), tok.value(), 1)?;
+        r.earleme_complete()?;
         Ok(())
     }
 }

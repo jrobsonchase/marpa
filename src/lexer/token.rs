@@ -1,5 +1,5 @@
 use std::fmt::{Debug, Display};
-use thin::Symbol;
+use crate::thin::Symbol;
 
 pub trait Token: From<(Symbol, i32)> + Display + Debug {
     fn sym(&self) -> Symbol;

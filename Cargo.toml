@@ -6,6 +6,7 @@ description = "Safe bindings to the libmarpa parsing engine"
 license = "MIT"
 repository = "https://github.com/Pursuit92/marpa"
 documentation = "https://pursuit92.github.io/marpa"
+edition = "2018"
 
 [dependencies]
 regex = "0.1"

@@ -18,18 +18,18 @@ mod rule;
 mod step;
 mod symbol;
 
-pub use thin::bocage::Bocage;
-pub use thin::config::Config;
-pub use thin::grammar::Grammar;
-pub use thin::order::Order;
-pub use thin::recognizer::Recognizer;
-pub use thin::rule::{Rule, RuleIter};
-pub use thin::symbol::{SymIter, Symbol, TokValue};
-pub use thin::tree::Tree;
-pub use thin::value::Value;
+pub use crate::thin::bocage::Bocage;
+pub use crate::thin::config::Config;
+pub use crate::thin::grammar::Grammar;
+pub use crate::thin::order::Order;
+pub use crate::thin::recognizer::Recognizer;
+pub use crate::thin::rule::{Rule, RuleIter};
+pub use crate::thin::symbol::{SymIter, Symbol, TokValue};
+pub use crate::thin::tree::Tree;
+pub use crate::thin::value::Value;
 
-pub use thin::event::{Event, EventIter};
+pub use crate::thin::event::{Event, EventIter};
 
-pub use thin::step::Step;
+pub use crate::thin::step::Step;
 
-pub use result::Result;
+pub use crate::result::Result;

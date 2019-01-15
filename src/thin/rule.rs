@@ -1,5 +1,5 @@
 use std::ops::Range;
-use thin::libmarpa_sys::*;
+use crate::thin::libmarpa_sys::*;
 
 pub type Rule = Marpa_Rule_ID;
 

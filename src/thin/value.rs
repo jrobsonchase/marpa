@@ -1,6 +1,6 @@
-use thin::libmarpa_sys::*;
-use thin::tree;
-use thin::{Grammar, Result, Step, Tree};
+use crate::thin::libmarpa_sys::*;
+use crate::thin::tree;
+use crate::thin::{Grammar, Result, Step, Tree};
 
 pub struct Value {
     internal: Marpa_Value,

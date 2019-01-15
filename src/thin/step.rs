@@ -1,4 +1,4 @@
-use thin::{Rule, Symbol, TokValue};
+use crate::thin::{Rule, Symbol, TokValue};
 
 #[derive(Debug)]
 pub enum Step {

@@ -1,10 +1,10 @@
-use lexer::byte_scanner::ByteToken;
-use stack::processor::Processor;
+use crate::lexer::byte_scanner::ByteToken;
+use crate::stack::processor::Processor;
 use std::collections::HashSet;
-use thin::Rule;
-use thin::Symbol;
-use tree_builder::tree::Handle;
-use tree_builder::tree::Node;
+use crate::thin::Rule;
+use crate::thin::Symbol;
+use crate::tree_builder::tree::Handle;
+use crate::tree_builder::tree::Node;
 
 #[derive(Default)]
 pub struct TreeBuilder {

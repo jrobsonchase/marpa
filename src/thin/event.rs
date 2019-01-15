@@ -1,8 +1,8 @@
-use thin::libmarpa_sys::*;
+use crate::thin::libmarpa_sys::*;
 
-use thin::grammar;
-use thin::grammar::Grammar;
-use thin::symbol::Symbol;
+use crate::thin::grammar;
+use crate::thin::grammar::Grammar;
+use crate::thin::symbol::Symbol;
 
 use std::ops::Range;
 

@@ -1,12 +1,12 @@
-use thin::earley::*;
-use thin::event::EventIter;
-use thin::grammar as g;
-use thin::grammar::Grammar;
-use thin::libmarpa_sys::*;
-use thin::progress::*;
-use thin::symbol::Symbol;
+use crate::thin::earley::*;
+use crate::thin::event::EventIter;
+use crate::thin::grammar as g;
+use crate::thin::grammar::Grammar;
+use crate::thin::libmarpa_sys::*;
+use crate::thin::progress::*;
+use crate::thin::symbol::Symbol;
 
-use result::*;
+use crate::result::*;
 
 use std::char;
 use std::mem;
@@ -154,7 +154,7 @@ impl Recognizer {
     }
 
     pub fn terminals_expected(&self) -> Result<Vec<Symbol>> {
-        let syms = try!(self.grammar.num_symbols()) as usize;
+        let syms = self.grammar.num_symbols()? as usize;
         let mut tmp: Vec<Symbol> = Vec::with_capacity(syms);
         match unsafe { marpa_r_terminals_expected(self.internal, tmp.as_mut_ptr()) } {
             -2 => self.grammar.error_or("error getting expected terminals"),
@@ -213,7 +213,7 @@ impl Recognizer {
     }
 
     pub fn progress_report(&self, set: EarleySet) -> Result<ProgressReport> {
-        let num_items = try!(self.progress_report_start(set));
+        let num_items = self.progress_report_start(set)?;
         let mut report: Vec<ProgressItem> = Vec::new();
         let mut res: Option<Result<ProgressReport>> = None;
         for _ in 0..num_items {
@@ -226,7 +226,7 @@ impl Recognizer {
             }
         }
 
-        try!(self.progress_report_finish());
+        self.progress_report_finish()?;
 
         if res.is_none() {
             res = Some(Ok(report));
@@ -242,9 +242,9 @@ impl Recognizer {
 
 #[cfg(test)]
 mod tests {
-    use thin::event::Event;
-    use thin::grammar::Grammar;
-    use thin::recognizer::Recognizer;
+    use crate::thin::event::Event;
+    use crate::thin::grammar::Grammar;
+    use crate::thin::recognizer::Recognizer;
 
     #[test]
     fn create_recognizer() {
