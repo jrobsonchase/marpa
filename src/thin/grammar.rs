@@ -2,14 +2,7 @@ use thin::libmarpa_sys::*;
 
 use result::*;
 
-use thin::{
-    Config,
-    Symbol,
-    SymIter,
-    Rule,
-    RuleIter,
-    EventIter,
-};
+use thin::{Config, EventIter, Rule, RuleIter, SymIter, Symbol};
 
 use std::ptr;
 
@@ -37,7 +30,7 @@ impl Drop for Grammar {
 }
 
 impl Grammar {
-    pub fn new() -> Result<Grammar> {
+    pub fn new() -> Result<Self> {
         let mut cfg = Config::new();
         unsafe {
             let c_grammar = marpa_g_new(&mut cfg.internal());
@@ -68,7 +61,7 @@ impl Grammar {
             code => {
                 unsafe { marpa_g_error_clear(self.internal) };
                 err_code(code)
-            },
+            }
         }
     }
 
@@ -107,21 +100,21 @@ impl Grammar {
     pub fn num_symbols(&self) -> Result<i32> {
         match unsafe { marpa_g_highest_symbol_id(self.internal) } {
             -2 => self.error_or("error getting highest symbol"),
-            max => Ok(max+1),
+            max => Ok(max + 1),
         }
     }
 
     pub fn symbols(&self) -> Result<SymIter> {
-        Ok((0..try!(self.num_symbols())))
+        Ok(0..try!(self.num_symbols()))
     }
 
     pub fn symbol_is_accessible(&self, sym: Symbol) -> Result<bool> {
         match unsafe { marpa_g_symbol_is_accessible(self.internal, sym) } {
-            1  => Ok(true),
-            0  => Ok(false),
+            1 => Ok(true),
+            0 => Ok(false),
             -1 => err_nosym(),
             -2 => self.error_or("error checking symbol accessibility"),
-            _  => panic!("unexpected error code"),
+            _ => panic!("unexpected error code"),
         }
     }
 
@@ -188,7 +181,7 @@ impl Grammar {
         let max = unsafe { marpa_g_highest_rule_id(self.internal) };
         match max {
             -2 => self.error_or("error getting highest symbol"),
-            max => Ok(0..max+1),
+            max => Ok(0..max + 1),
         }
     }
 
@@ -302,17 +295,16 @@ impl Grammar {
         }
     }
 
-    pub fn new_sequence(&self,
-                        lhs: Symbol,
-                        rhs: Symbol,
-                        sep: Symbol,
-                        nonempty: bool,
-                        proper: bool) -> Result<Rule> {
+    pub fn new_sequence(&self, lhs: Symbol, rhs: Symbol, sep: Symbol, nonempty: bool, proper: bool) -> Result<Rule> {
         match unsafe {
-            marpa_g_sequence_new(self.internal,
-                                 lhs, rhs, sep,
-                                 nonempty as i32,
-                                 if proper {MARPA_PROPER_SEPARATION} else {0})
+            marpa_g_sequence_new(
+                self.internal,
+                lhs,
+                rhs,
+                sep,
+                nonempty as i32,
+                if proper { MARPA_PROPER_SEPARATION } else { 0 },
+            )
         } {
             -2 => self.error_or("error creating sequence"),
             ruleid => Ok(ruleid),
@@ -400,7 +392,7 @@ impl Grammar {
             -2 => self.error_or("error getting completion event"),
             0 => Ok(false),
             1 => Ok(true),
-            err => panic!("unexpected error code: {}", err)
+            err => panic!("unexpected error code: {}", err),
         }
     }
 
@@ -410,7 +402,7 @@ impl Grammar {
             -2 => self.error_or("error setting completion event"),
             0 => Ok(()),
             1 => Ok(()),
-            err => panic!("unexpected error code: {}", err)
+            err => panic!("unexpected error code: {}", err),
         }
     }
 
@@ -420,7 +412,7 @@ impl Grammar {
             -2 => self.error_or("error getting nulled event"),
             0 => Ok(false),
             1 => Ok(true),
-            err => panic!("unexpected error code: {}", err)
+            err => panic!("unexpected error code: {}", err),
         }
     }
 
@@ -430,7 +422,7 @@ impl Grammar {
             -2 => self.error_or("error setting nulled event"),
             0 => Ok(()),
             1 => Ok(()),
-            err => panic!("unexpected error code: {}", err)
+            err => panic!("unexpected error code: {}", err),
         }
     }
 
@@ -440,7 +432,7 @@ impl Grammar {
             -2 => self.error_or("error getting prediction event"),
             0 => Ok(false),
             1 => Ok(true),
-            err => panic!("unexpected error code: {}", err)
+            err => panic!("unexpected error code: {}", err),
         }
     }
 
@@ -450,7 +442,7 @@ impl Grammar {
             -2 => self.error_or("error setting prediction event"),
             0 => Ok(()),
             1 => Ok(()),
-            err => panic!("unexpected error code: {}", err)
+            err => panic!("unexpected error code: {}", err),
         }
     }
 
@@ -458,9 +450,7 @@ impl Grammar {
         unsafe {
             match marpa_g_event_count(self.internal) {
                 -2 => self.error_or("error getting event count"),
-                count => {
-                    Ok(EventIter::new(count, self.clone()))
-                }
+                count => Ok(EventIter::new(count, self.clone())),
             }
         }
     }
@@ -494,10 +484,10 @@ impl Grammar {
 
 #[cfg(test)]
 mod tests {
+    use thin::event::Event;
     use thin::grammar::Grammar;
     use thin::rule::Rule;
     use thin::symbol::Symbol;
-    use thin::event::Event;
 
     fn new_grammar() -> Grammar {
         Grammar::new().unwrap()
@@ -514,7 +504,7 @@ mod tests {
         for _ in 0..5 {
             g.new_symbol().unwrap();
         }
-        let ids: Vec<i32> = vec![0,1,2,3,4];
+        let ids: Vec<i32> = vec![0, 1, 2, 3, 4];
         assert!(g.symbols().unwrap().collect::<Vec<Symbol>>() == ids);
     }
 
@@ -529,7 +519,7 @@ mod tests {
         g.new_rule(1.into(), &[3, 4]).unwrap();
         g.new_rule(2.into(), &[]).unwrap();
 
-        let ids: Vec<i32> = vec![0,1,2];
+        let ids: Vec<i32> = vec![0, 1, 2];
 
         assert!(g.rules().unwrap().collect::<Vec<Rule>>() == ids);
         assert!(g.rule_is_accessible(0).unwrap());
@@ -545,7 +535,7 @@ mod tests {
         let term = g.symbol_set_terminal(s, false);
         match term {
             Ok(_) => assert!(false),
-            _ => {},
+            _ => {}
         }
     }
 

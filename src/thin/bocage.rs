@@ -1,15 +1,10 @@
-use thin::libmarpa_sys::*;
-
-use thin::grammar::Grammar;
-
-use thin::recognizer::Recognizer;
-use thin::recognizer as r;
-
 use thin::earley::*;
+use thin::grammar::Grammar;
+use thin::libmarpa_sys::*;
+use thin::recognizer as r;
+use thin::recognizer::Recognizer;
 
 use result::*;
-
-use std::ptr;
 
 pub struct Bocage {
     internal: Marpa_Bocage,
@@ -29,7 +24,10 @@ pub fn grammar(bocage: &Bocage) -> Grammar {
 impl Clone for Bocage {
     fn clone(&self) -> Bocage {
         unsafe { marpa_b_ref(self.internal) };
-        Bocage { internal: self.internal, grammar: self.grammar.clone() }
+        Bocage {
+            internal: self.internal,
+            grammar: self.grammar.clone(),
+        }
     }
 }
 
@@ -46,8 +44,8 @@ impl Bocage {
         let r_internal = r::internal(&r);
         let grammar = r::grammar(&r);
         match unsafe { marpa_b_new(r_internal, set) } {
-            n if n == ptr::null_mut() => grammar.error_or("error creating bocage"),
-            b => Ok( Bocage{ internal: b, grammar: grammar }),
+            n if n.is_null() => grammar.error_or("error creating bocage"),
+            b => Ok(Bocage { internal: b, grammar }),
         }
     }
 
@@ -73,13 +71,11 @@ impl Bocage {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
 
     use thin::*;
 
-    
     #[test]
     fn create_bocage() {
         let mut g: Grammar = Grammar::new().unwrap();

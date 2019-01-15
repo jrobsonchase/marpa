@@ -1,19 +1,13 @@
-use thin::libmarpa_sys::*;
-
-use thin::grammar::Grammar;
-use thin::grammar as g;
-
-use thin::symbol::Symbol;
-
-use thin::event::EventIter;
-
 use thin::earley::*;
+use thin::event::EventIter;
+use thin::grammar as g;
+use thin::grammar::Grammar;
+use thin::libmarpa_sys::*;
+use thin::progress::*;
+use thin::symbol::Symbol;
 
 use result::*;
 
-use thin::progress::*;
-
-use std::ptr;
 use std::char;
 use std::mem;
 
@@ -37,7 +31,10 @@ pub fn grammar(recognizer: &Recognizer) -> Grammar {
 impl Clone for Recognizer {
     fn clone(&self) -> Recognizer {
         unsafe { marpa_r_ref(self.internal) };
-        Recognizer { internal: self.internal, grammar: self.grammar.clone() }
+        Recognizer {
+            internal: self.internal,
+            grammar: self.grammar.clone(),
+        }
     }
 }
 
@@ -53,8 +50,8 @@ impl Recognizer {
     pub fn new(g: Grammar) -> Result<Recognizer> {
         let grammar = g::internal(&g);
         match unsafe { marpa_r_new(grammar) } {
-            n if n == ptr::null_mut() => g.error_or("error creating recognizer"),
-            r => Ok( Recognizer{ internal: r, grammar: g }),
+            n if n.is_null() => g.error_or("error creating recognizer"),
+            r => Ok(Recognizer { internal: r, grammar: g }),
         }
     }
 
@@ -164,9 +161,7 @@ impl Recognizer {
             i if i >= 0 => {
                 let data_ptr = tmp.as_mut_ptr();
                 mem::forget(tmp);
-                unsafe {
-                    Ok(Vec::from_raw_parts(data_ptr, i as usize, syms))
-                }
+                unsafe { Ok(Vec::from_raw_parts(data_ptr, i as usize, syms)) }
             }
             e => panic!("unexpected error code: {}", e),
         }
@@ -212,7 +207,7 @@ impl Recognizer {
         match unsafe { marpa_r_progress_item(self.internal, &mut pos as *mut i32, &mut origin as *mut EarleySet) } {
             -2 => self.grammar.error_or("error getting next progress report item"),
             -1 => err_code(MARPA_ERR_PROGRESS_REPORT_EXHAUSTED),
-            ruleid if ruleid >= 0 => Ok(ProgressItem{ rule: ruleid, pos: pos, origin: origin }),
+            ruleid if ruleid >= 0 => Ok(ProgressItem { rule: ruleid, pos, origin }),
             e => panic!("unexpected error code: {}", e),
         }
     }
@@ -224,7 +219,7 @@ impl Recognizer {
         for _ in 0..num_items {
             match self.progress_report_item() {
                 Ok(item) => report.push(item),
-                Err(err) =>{
+                Err(err) => {
                     res = Some(Err(err));
                     break;
                 }
@@ -233,7 +228,7 @@ impl Recognizer {
 
         try!(self.progress_report_finish());
 
-        if let None = res {
+        if res.is_none() {
             res = Some(Ok(report));
         }
 
@@ -245,12 +240,11 @@ impl Recognizer {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
+    use thin::event::Event;
     use thin::grammar::Grammar;
     use thin::recognizer::Recognizer;
-    use thin::event::Event;
 
     #[test]
     fn create_recognizer() {

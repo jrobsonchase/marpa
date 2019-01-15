@@ -1,15 +1,6 @@
 use thin::libmarpa_sys::*;
-
-use thin::{
-    Grammar,
-    Step,
-    Tree,
-    Result,
-};
-
 use thin::tree;
-
-use std::ptr;
+use thin::{Grammar, Result, Step, Tree};
 
 pub struct Value {
     internal: Marpa_Value,
@@ -23,8 +14,8 @@ impl Value {
         let t_internal = tree::internal(&t);
         let grammar = tree::grammar(&t);
         match unsafe { marpa_v_new(t_internal) } {
-            n if n == ptr::null_mut() => grammar.error_or("error creating value"),
-            v => Ok( Value{ internal: v, grammar: grammar }),
+            n if n.is_null() => grammar.error_or("error creating value"),
+            v => Ok(Value { internal: v, grammar }),
         }
     }
 }
@@ -42,7 +33,10 @@ pub fn grammar(value: &Value) -> Grammar {
 impl Clone for Value {
     fn clone(&self) -> Value {
         unsafe { marpa_v_ref(self.internal) };
-        Value { internal: self.internal, grammar: self.grammar.clone() }
+        Value {
+            internal: self.internal,
+            grammar: self.grammar.clone(),
+        }
     }
 }
 
@@ -61,19 +55,19 @@ impl Iterator for Value {
                 MARPA_STEP_INITIAL => self.next(),
                 MARPA_STEP_INACTIVE => None,
 
-                MARPA_STEP_NULLING_SYMBOL =>
-                    Some(Step::NullingSymbol((*self.internal).t_token_id,
-                                              (*self.internal).t_result)),
+                MARPA_STEP_NULLING_SYMBOL => Some(Step::NullingSymbol((*self.internal).t_token_id, (*self.internal).t_result)),
 
-                MARPA_STEP_RULE =>
-                    Some(Step::Rule((*self.internal).t_rule_id,
-                         (*self.internal).t_result,
-                         (*self.internal).t_arg_n)),
+                MARPA_STEP_RULE => Some(Step::Rule(
+                    (*self.internal).t_rule_id,
+                    (*self.internal).t_result,
+                    (*self.internal).t_arg_n,
+                )),
 
-                MARPA_STEP_TOKEN =>
-                    Some(Step::Token((*self.internal).t_token_id,
-                                     (*self.internal).t_result,
-                                     (*self.internal).t_token_value)),
+                MARPA_STEP_TOKEN => Some(Step::Token(
+                    (*self.internal).t_token_id,
+                    (*self.internal).t_result,
+                    (*self.internal).t_token_value,
+                )),
 
                 // the only thing left are the internal-only and invalid types
                 _ => None,

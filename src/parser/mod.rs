@@ -1,13 +1,13 @@
-use lexer::token_source::TokenSource;
 use lexer::token::Token;
+use lexer::token_source::TokenSource;
 
 use result::Result;
 
 use thin::{
-    Grammar,
-    Recognizer,
     Bocage,
+    Grammar,
     Order,
+    Recognizer,
     Tree,
     // Value,
 };
@@ -21,13 +21,7 @@ enum MarpaState {
     T(Tree),
 }
 
-use self::MarpaState::{
-    G,
-    R,
-    B,
-    O,
-    T,
-};
+use self::MarpaState::{B, G, O, R, T};
 
 impl MarpaState {
     fn new() -> Self {
@@ -36,14 +30,14 @@ impl MarpaState {
 
     fn adv(&mut self) -> Result<MarpaState> {
         match self {
-            &mut G(ref mut g) => {
+            G(ref mut g) => {
                 try!(g.precompute());
-                Recognizer::new(g.clone()).map(|s| R(s))
-            },
-            &mut R(ref r) => Bocage::new(r.clone()).map(|s| B(s)),
-            &mut B(ref b) => Order::new(b.clone()).map(|s| O(s)),
-            &mut O(ref o) => Tree::new(o.clone()).map(|s| T(s)),
-            &mut T(_) => Err("No next state".into()),
+                Recognizer::new(g.clone()).map(R)
+            }
+            R(ref r) => Bocage::new(r.clone()).map(B),
+            B(ref b) => Order::new(b.clone()).map(O),
+            O(ref o) => Tree::new(o.clone()).map(T),
+            T(_) => Err("No next state".into()),
         }
     }
 }
@@ -54,22 +48,23 @@ impl Default for MarpaState {
     }
 }
 
+#[derive(Default)]
 pub struct Parser {
     state: MarpaState,
 }
 
 macro_rules! get_state {
-    ($e:expr, $s:ident) => ({
+    ($e:expr, $s:ident) => {{
         match $e.state {
             $s(ref mut g) => g,
             _ => return Err(format!("Marpa is not in the {} state", stringify!($s)).into()),
         }
-    })
+    }};
 }
 
 impl Parser {
     pub fn new() -> Self {
-        Parser{ state: Default::default() }
+        Parser::default()
     }
 
     pub fn with_grammar(g: Grammar) -> Self {
@@ -86,7 +81,8 @@ impl Parser {
         if let G(_) = self.state {
             try!(self.adv_marpa())
         }
-        { // limit recognizer borrow
+        {
+            // limit recognizer borrow
             let r = get_state!(self, R);
             try!(r.start_input());
             loop {
@@ -116,4 +112,3 @@ impl Parser {
         Ok(())
     }
 }
-
