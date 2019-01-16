@@ -1,13 +1,13 @@
-#![allow(non_snake_case,unused_variables)]
+#![allow(non_snake_case, unused_variables)]
 
 extern crate marpa;
 
-use marpa::parser::*;
-use marpa::lexer::byte_scanner::*;
-use marpa::tree_builder::*;
-use marpa::stack::*;
 use marpa::grammar::Grammar;
+use marpa::lexer::byte_scanner::*;
+use marpa::parser::*;
 use marpa::result::Result;
+use marpa::stack::*;
+use marpa::tree_builder::*;
 
 use std::io::Cursor;
 

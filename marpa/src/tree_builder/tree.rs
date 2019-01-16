@@ -1,10 +1,10 @@
 use crate::lexer::token::Token;
+use crate::thin::Rule;
+use crate::thin::Symbol;
 use std::cell::RefCell;
 use std::fmt;
 use std::ops::Deref;
 use std::rc::Rc;
-use crate::thin::Rule;
-use crate::thin::Symbol;
 
 #[derive(Clone, Default, Debug)]
 pub struct Handle<T: Token>(Rc<RefCell<Node<T>>>);
@@ -45,7 +45,7 @@ where
                 write!(f, "Token({}, ", ty)?;
                 match ::std::str::from_utf8(&val) {
                     Ok(s) => write!(f, "\"{}\"", s)?,
-                    Err(_) => write!(f, "{:?}", val)?
+                    Err(_) => write!(f, "{:?}", val)?,
                 }
                 write!(f, ")")?;
             }

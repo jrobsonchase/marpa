@@ -1,7 +1,7 @@
 use crate::lexer::token::Token;
+use crate::thin::Symbol;
 use std::fmt;
 use std::str;
-use crate::thin::Symbol;
 
 #[derive(Default, PartialEq, Eq, PartialOrd, Debug, Copy, Clone)]
 pub struct ByteToken(u8);

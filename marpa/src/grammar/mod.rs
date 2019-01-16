@@ -1,6 +1,6 @@
 use crate::result::Result;
-use std::collections::HashMap;
 use crate::thin;
+use std::collections::HashMap;
 
 pub struct Grammar {
     internal: thin::Grammar,
