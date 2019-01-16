@@ -1,16 +1,16 @@
-use thin::libmarpa_sys::*;
+use crate::thin::libmarpa_sys::*;
 
+use crate::result::*;
 use std::ptr;
-use result::*;
 
+#[derive(Default)]
 pub struct Config {
     internal: Marpa_Config,
 }
 
-
 impl Config {
     pub fn new() -> Config {
-        let mut cfg = Config { internal: Marpa_Config::default() };
+        let mut cfg = Config::default();
 
         assert!(cfg.init() == MARPA_ERR_NONE);
 
@@ -22,9 +22,7 @@ impl Config {
     }
 
     fn init(&mut self) -> Marpa_Error_Code {
-        unsafe {
-            marpa_c_init(&mut self.internal)
-        }
+        unsafe { marpa_c_init(&mut self.internal) }
     }
 
     pub fn error(&mut self) -> Result<()> {

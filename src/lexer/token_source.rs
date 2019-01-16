@@ -1,7 +1,16 @@
 use super::token::Token;
 
-pub trait TokenSource<T>: Iterator<Item=T> where T: Token {}
-impl<T, U> TokenSource<U> for T where T: Iterator<Item=U>, U: Token {}
+pub trait TokenSource<T>: Iterator<Item = T>
+where
+    T: Token,
+{
+}
+impl<T, U> TokenSource<U> for T
+where
+    T: Iterator<Item = U>,
+    U: Token,
+{
+}
 
 // pub struct VecTokenSource {
 //     tokens: Vec<Token>,

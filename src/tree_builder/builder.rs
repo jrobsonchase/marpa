@@ -1,10 +1,10 @@
-use thin::Rule;
-use thin::Symbol;
-use lexer::byte_scanner::ByteToken;
-use tree_builder::tree::Handle;
-use tree_builder::tree::Node;
-use stack::processor::Processor;
+use crate::lexer::byte_scanner::ByteToken;
+use crate::stack::processor::Processor;
 use std::collections::HashSet;
+use crate::thin::Rule;
+use crate::thin::Symbol;
+use crate::tree_builder::tree::Handle;
+use crate::tree_builder::tree::Node;
 
 #[derive(Default)]
 pub struct TreeBuilder {
@@ -77,12 +77,12 @@ fn rollup_token(children: &[Handle<ByteToken>]) -> Vec<u8> {
 // TODO tco
 fn rollup_token_rec(handles: &[Handle<ByteToken>], out: &mut Vec<u8>) {
     for child in handles.iter() {
-        match &*child.borrow() {
-            &Node::Leaf(tok) => out.push(*tok),
-            &Node::Null(_) => {},
-            &Node::Tree(_, ref chs) => rollup_token_rec(chs, out),
-            &Node::Rule(_, _) => panic!("cannot rollup Rule into Token - this is an internal bug."),
-            &Node::Token(_, _) => panic!("cannot rollup Token into Token - this is an internal bug."),
+        match *child.borrow() {
+            Node::Leaf(tok) => out.push(*tok),
+            Node::Null(_) => {}
+            Node::Tree(_, ref chs) => rollup_token_rec(chs, out),
+            Node::Rule(_, _) => panic!("cannot rollup Rule into Token - this is an internal bug."),
+            Node::Token(_, _) => panic!("cannot rollup Token into Token - this is an internal bug."),
         }
     }
 }
@@ -96,12 +96,12 @@ fn rollup_rule(children: &[Handle<ByteToken>]) -> Vec<Handle<ByteToken>> {
 // TODO tco
 fn rollup_rule_rec(handles: &[Handle<ByteToken>], out: &mut Vec<Handle<ByteToken>>) {
     for child in handles.iter() {
-        match &*child.borrow() {
-            &Node::Token(_, _) => out.push(child.clone()),
-            &Node::Rule(_, _) => out.push(child.clone()),
-            &Node::Null(_) => {},
-            &Node::Tree(_, ref chs) => rollup_rule_rec(chs, out),
-            &Node::Leaf(_) => panic!("cannot rollup Leaf into Rule - this is an internal bug."),
+        match *child.borrow() {
+            Node::Token(_, _) => out.push(child.clone()),
+            Node::Rule(_, _) => out.push(child.clone()),
+            Node::Null(_) => {}
+            Node::Tree(_, ref chs) => rollup_rule_rec(chs, out),
+            Node::Leaf(_) => panic!("cannot rollup Leaf into Rule - this is an internal bug."),
         }
     }
 }

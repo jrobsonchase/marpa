@@ -1,15 +1,6 @@
-use thin::libmarpa_sys::*;
-
-use thin::{
-    Grammar,
-    Order,
-    Result,
-    Value,
-};
-
-use thin::order as o;
-
-use std::ptr;
+use crate::thin::libmarpa_sys::*;
+use crate::thin::order as o;
+use crate::thin::{Grammar, Order, Result, Value};
 
 pub struct Tree {
     internal: Marpa_Tree,
@@ -31,7 +22,10 @@ pub fn grammar(tree: &Tree) -> Grammar {
 impl Clone for Tree {
     fn clone(&self) -> Tree {
         unsafe { marpa_t_ref(self.internal) };
-        Tree { internal: self.internal, grammar: self.grammar.clone() }
+        Tree {
+            internal: self.internal,
+            grammar: self.grammar.clone(),
+        }
     }
 }
 
@@ -46,8 +40,8 @@ impl Tree {
         let o_internal = o::internal(&order);
         let grammar = o::grammar(&order);
         match unsafe { marpa_t_new(o_internal) } {
-            n if n == ptr::null_mut() => grammar.error_or("error creating order"),
-            t => Ok( Tree{ internal: t, grammar: grammar }),
+            n if n.is_null() => grammar.error_or("error creating order"),
+            t => Ok(Tree { internal: t, grammar }),
         }
     }
 }

@@ -1,9 +1,9 @@
-use thin::Symbol;
-use lexer::token::Token;
+use crate::lexer::token::Token;
 use std::fmt;
 use std::str;
+use crate::thin::Symbol;
 
-#[derive(Default,PartialEq,Eq,PartialOrd,Debug,Copy,Clone)]
+#[derive(Default, PartialEq, Eq, PartialOrd, Debug, Copy, Clone)]
 pub struct ByteToken(u8);
 
 impl fmt::Display for ByteToken {
@@ -24,11 +24,11 @@ impl From<(Symbol, i32)> for ByteToken {
 
 impl Token for ByteToken {
     fn sym(&self) -> Symbol {
-        self.0 as i32
+        i32::from(self.0)
     }
 
     fn value(&self) -> i32 {
-        (self.0 + 1) as i32
+        i32::from(self.0) + 1
     }
 }
 
@@ -54,7 +54,7 @@ impl<R: ::std::io::Read> ByteScanner<R> {
 
     pub fn with_capacity(rd: R, cap: usize) -> ByteScanner<R> {
         ByteScanner {
-            rd: rd,
+            rd,
             buffer: vec![0; cap],
             idx: 0,
             end: 0,
@@ -69,13 +69,19 @@ impl<R: ::std::io::Read> ByteScanner<R> {
         if self.idx >= self.end {
             self.idx = 0;
             match self.fill_buffer() {
-                Ok(size) => if size == 0 { return None } else { self.end = size },
+                Ok(size) => {
+                    if size == 0 {
+                        return None;
+                    } else {
+                        self.end = size
+                    }
+                }
                 Err(_) => return None,
             }
         }
 
         self.idx += 1;
-        Some(self.buffer[self.idx-1])
+        Some(self.buffer[self.idx - 1])
     }
 }
 
@@ -94,9 +100,9 @@ impl<R: ::std::io::Read> Iterator for ByteScanner<R> {
 
 #[cfg(test)]
 mod tests {
+    use super::super::token_source::TokenSource;
     use super::ByteScanner;
     use super::ByteToken;
-    use super::super::token_source::TokenSource;
     use std::io::Cursor;
 
     #[test]
@@ -106,22 +112,24 @@ mod tests {
         must_compile(&scanner);
 
         let toks: Vec<ByteToken> = scanner.collect();
-        assert!(toks == vec![
-            ByteToken(72),
-            ByteToken(101),
-            ByteToken(108),
-            ByteToken(108),
-            ByteToken(111),
-            ByteToken(44),
-            ByteToken(32),
-            ByteToken(119),
-            ByteToken(111),
-            ByteToken(114),
-            ByteToken(108),
-            ByteToken(100),
-            ByteToken(33),
-            ]);
+        assert!(
+            toks == vec![
+                ByteToken(72),
+                ByteToken(101),
+                ByteToken(108),
+                ByteToken(108),
+                ByteToken(111),
+                ByteToken(44),
+                ByteToken(32),
+                ByteToken(119),
+                ByteToken(111),
+                ByteToken(114),
+                ByteToken(108),
+                ByteToken(100),
+                ByteToken(33),
+            ]
+        );
     }
 
-    fn must_compile<T: TokenSource<ByteToken>>(_: &T){}
+    fn must_compile<T: TokenSource<ByteToken>>(_: &T) {}
 }

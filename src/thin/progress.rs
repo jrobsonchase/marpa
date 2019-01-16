@@ -1,5 +1,5 @@
-use thin::rule::Rule;
-use thin::earley::EarleySet;
+use crate::thin::earley::EarleySet;
+use crate::thin::rule::Rule;
 
 pub struct ProgressItem {
     pub rule: Rule,

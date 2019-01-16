@@ -1,13 +1,9 @@
-use thin::libmarpa_sys::*;
+use crate::thin::bocage as b;
+use crate::thin::bocage::Bocage;
+use crate::thin::grammar::Grammar;
+use crate::thin::libmarpa_sys::*;
 
-use thin::grammar::Grammar;
-
-use thin::bocage::Bocage;
-use thin::bocage as b;
-
-use result::*;
-
-use std::ptr;
+use crate::result::*;
 
 pub struct Order {
     internal: Marpa_Order,
@@ -29,7 +25,10 @@ pub fn grammar(order: &Order) -> Grammar {
 impl Clone for Order {
     fn clone(&self) -> Order {
         unsafe { marpa_o_ref(self.internal) };
-        Order { internal: self.internal, grammar: self.grammar.clone() }
+        Order {
+            internal: self.internal,
+            grammar: self.grammar.clone(),
+        }
     }
 }
 
@@ -46,8 +45,8 @@ impl Order {
         let b_internal = b::internal(&b);
         let grammar = b::grammar(&b);
         match unsafe { marpa_o_new(b_internal) } {
-            n if n == ptr::null_mut() => grammar.error_or("error creating order"),
-            o => Ok( Order{ internal: o, grammar: grammar }),
+            n if n.is_null() => grammar.error_or("error creating order"),
+            o => Ok(Order { internal: o, grammar }),
         }
     }
 

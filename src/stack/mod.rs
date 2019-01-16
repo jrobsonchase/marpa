@@ -1,35 +1,41 @@
-use thin::Step;
-use thin::Value;
+use crate::thin::Step;
+use crate::thin::Value;
 
 pub mod processor;
 
 use self::processor::Processor;
 
-struct Stack<T> where T: Processor {
+struct Stack<T>
+where
+    T: Processor,
+{
     items: Vec<T::Tree>,
     processor: T,
 }
 
-impl<T> Stack<T> where T: Processor {
+impl<T> Stack<T>
+where
+    T: Processor,
+{
     fn new(processor: T) -> Stack<T> {
         let items = vec![Default::default(); 1];
-        Stack{ items: items, processor: processor }
+        Stack { items, processor }
     }
 
     fn step(&mut self, value_step: Step) {
         match value_step {
             Step::Rule(rule, start, end) => {
                 self.size_stack(end as usize);
-                self.items[start as usize] = self.processor.proc_rule(rule, &self.items[start as usize..end as usize + 1]);
-            },
+                self.items[start as usize] = self.processor.proc_rule(rule, &self.items[start as usize..=end as usize]);
+            }
             Step::Token(sym, res, val) => {
                 self.size_stack(res as usize);
                 self.items[res as usize] = self.processor.proc_token((sym, val).into());
-            },
+            }
             Step::NullingSymbol(sym, res) => {
                 self.size_stack(res as usize);
                 self.items[res as usize] = self.processor.proc_null(sym);
-            },
+            }
             s => panic!("Invalid step: {:?}", s),
         }
     }

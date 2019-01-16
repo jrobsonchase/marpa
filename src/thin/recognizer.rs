@@ -1,19 +1,13 @@
-use thin::libmarpa_sys::*;
+use crate::thin::earley::*;
+use crate::thin::event::EventIter;
+use crate::thin::grammar as g;
+use crate::thin::grammar::Grammar;
+use crate::thin::libmarpa_sys::*;
+use crate::thin::progress::*;
+use crate::thin::symbol::Symbol;
 
-use thin::grammar::Grammar;
-use thin::grammar as g;
+use crate::result::*;
 
-use thin::symbol::Symbol;
-
-use thin::event::EventIter;
-
-use thin::earley::*;
-
-use result::*;
-
-use thin::progress::*;
-
-use std::ptr;
 use std::char;
 use std::mem;
 
@@ -37,7 +31,10 @@ pub fn grammar(recognizer: &Recognizer) -> Grammar {
 impl Clone for Recognizer {
     fn clone(&self) -> Recognizer {
         unsafe { marpa_r_ref(self.internal) };
-        Recognizer { internal: self.internal, grammar: self.grammar.clone() }
+        Recognizer {
+            internal: self.internal,
+            grammar: self.grammar.clone(),
+        }
     }
 }
 
@@ -53,8 +50,8 @@ impl Recognizer {
     pub fn new(g: Grammar) -> Result<Recognizer> {
         let grammar = g::internal(&g);
         match unsafe { marpa_r_new(grammar) } {
-            n if n == ptr::null_mut() => g.error_or("error creating recognizer"),
-            r => Ok( Recognizer{ internal: r, grammar: g }),
+            n if n.is_null() => g.error_or("error creating recognizer"),
+            r => Ok(Recognizer { internal: r, grammar: g }),
         }
     }
 
@@ -157,16 +154,14 @@ impl Recognizer {
     }
 
     pub fn terminals_expected(&self) -> Result<Vec<Symbol>> {
-        let syms = try!(self.grammar.num_symbols()) as usize;
+        let syms = self.grammar.num_symbols()? as usize;
         let mut tmp: Vec<Symbol> = Vec::with_capacity(syms);
         match unsafe { marpa_r_terminals_expected(self.internal, tmp.as_mut_ptr()) } {
             -2 => self.grammar.error_or("error getting expected terminals"),
             i if i >= 0 => {
                 let data_ptr = tmp.as_mut_ptr();
                 mem::forget(tmp);
-                unsafe {
-                    Ok(Vec::from_raw_parts(data_ptr, i as usize, syms))
-                }
+                unsafe { Ok(Vec::from_raw_parts(data_ptr, i as usize, syms)) }
             }
             e => panic!("unexpected error code: {}", e),
         }
@@ -212,28 +207,28 @@ impl Recognizer {
         match unsafe { marpa_r_progress_item(self.internal, &mut pos as *mut i32, &mut origin as *mut EarleySet) } {
             -2 => self.grammar.error_or("error getting next progress report item"),
             -1 => err_code(MARPA_ERR_PROGRESS_REPORT_EXHAUSTED),
-            ruleid if ruleid >= 0 => Ok(ProgressItem{ rule: ruleid, pos: pos, origin: origin }),
+            ruleid if ruleid >= 0 => Ok(ProgressItem { rule: ruleid, pos, origin }),
             e => panic!("unexpected error code: {}", e),
         }
     }
 
     pub fn progress_report(&self, set: EarleySet) -> Result<ProgressReport> {
-        let num_items = try!(self.progress_report_start(set));
+        let num_items = self.progress_report_start(set)?;
         let mut report: Vec<ProgressItem> = Vec::new();
         let mut res: Option<Result<ProgressReport>> = None;
         for _ in 0..num_items {
             match self.progress_report_item() {
                 Ok(item) => report.push(item),
-                Err(err) =>{
+                Err(err) => {
                     res = Some(Err(err));
                     break;
                 }
             }
         }
 
-        try!(self.progress_report_finish());
+        self.progress_report_finish()?;
 
-        if let None = res {
+        if res.is_none() {
             res = Some(Ok(report));
         }
 
@@ -245,12 +240,11 @@ impl Recognizer {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use thin::grammar::Grammar;
-    use thin::recognizer::Recognizer;
-    use thin::event::Event;
+    use crate::thin::event::Event;
+    use crate::thin::grammar::Grammar;
+    use crate::thin::recognizer::Recognizer;
 
     #[test]
     fn create_recognizer() {
