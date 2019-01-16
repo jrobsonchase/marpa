@@ -1,0 +1,20 @@
+language: rust
+rust:
+  - stable
+  - beta
+  - nightly
+
+after_success: |
+  [ $TRAVIS_BRANCH = master ] &&
+  [ $TRAVIS_PULL_REQUEST = false ] &&
+  [ $TRAVIS_RUST_VERSION = stable ] &&
+  cargo doc --no-deps &&
+  echo '<meta http-equiv=refresh content=0;url=libmarpa_sys/index.html>' > target/doc/index.html &&
+  pip install --user ghp-import &&
+  /home/travis/.local/bin/ghp-import -n target/doc &&
+  git push -fq https://${TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git gh-pages 
+
+env:
+  global:
+    - TRAVIS_REPO_SLUG: Pursuit92/libmarpa-sys
+    - secure: "Pivs5HEnIcEQtpe/HIxuOptE1L/MPAp6vinIanqg0inaNhmwp4zq3ky3a242Y3pCwszbYz+cJQPl5LcG6a88/DIkIXIMBLOt00EFXu51Stl4+m0Qqvk8RCmUJ+qPZmIz369gYzZDaswdg/uWTEfqylLb04e1Hhu5PQBlXv6Wx9qFDIwObi+qIcOc9y9DU1IR11pnMjmbPPEN8uG5sq6hQNpCHFJ/89qjJ8PQrzvVuiDW1Suffh3qOAJuE3M8/oGrHu548BNwn3oPuUT+6K9Tvvyff2HnV7uNwTUeSoaYHxDb8ryaE3bdVmzqomOAhDbppsWDHicQfaFK9lxdeshMnddJLZBvCGoLWdcIYzczs6dlqj2W9e/TlhLHFBSLd4D7p3Zrjy9LdPEBU1WSjojct4V4jNshrl1UdfnBDh+kL/U08qAeminm+AxCiCGISDlRUw0BfYbOc9IwdY5RmKczc0BMOJBWkaFZOr/7WX3KLt36shgPk/RIitGVIRHrszObSYbgx3jXw3+SQqDFDmxjrW36txanNgA07g499YQ52I0UhM0LD7/LC12+UY78mnGQdbD6iUIkUsi+fwqVUF42gQfmxCFuXrFyBNp8Sb6G9lE1ozMG51ci1H5lFM02/ysMNjkpWqmuO4QZ9SPBgTBI9f/16gebOczgL186j95AChc="
