@@ -1,11 +1,11 @@
 [package]
 name = "marpa"
-version = "0.2.0"
-authors = ["Josh Chase <jcjoshuachase@gmail.com>"]
+version = "0.2.1"
+authors = ["Josh Robson Chase <josh@robsonchase.com>"]
 description = "Safe bindings to the libmarpa parsing engine"
-license = "MIT"
-repository = "https://github.com/Pursuit92/marpa"
-documentation = "https://pursuit92.github.io/marpa"
+license = "MIT/Apache-2.0"
+repository = "https://github.com/jrobsonchase/marpa"
+documentation = "https://docs.rs/marpa"
 edition = "2018"
 
 [dependencies]
