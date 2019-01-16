@@ -6,6 +6,10 @@ description = "Low-level bindings to the libmarpa parsing engine"
 license = "MIT/Apache-2.0"
 repository = "https://github.com/jrobsonchase/libmarpa-sys"
 documentation = "https://docs.rs/libmarpa-sys"
+edition = "2018"
 
 [dependencies]
 libc = "0.2.47"
+
+[build-dependencies]
+autotools = "0.1.3"
