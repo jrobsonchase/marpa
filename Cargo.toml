@@ -3,7 +3,7 @@ name = "libmarpa-sys"
 version = "0.1.4"
 authors = ["Josh Robson Chase <josh@robsonchase.com>"]
 description = "Low-level bindings to the libmarpa parsing engine"
-license = "MIT/Apache"
+license = "MIT/Apache-2.0"
 repository = "https://github.com/jrobsonchase/libmarpa-sys"
 documentation = "https://docs.rs/libmarpa-sys"
 
