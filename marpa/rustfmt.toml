@@ -1,0 +1,11 @@
+max_width = 151
+tab_spaces = 4
+#edition = "2018"
+## nightly channel options
+#comment_width = 150
+#wrap_comments = true
+#fn_single_line = true
+#where_single_line = true
+#match_block_trailing_comma = true
+#error_on_line_overflow = true
+#error_on_unformatted = true
