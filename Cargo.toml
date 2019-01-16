@@ -1,11 +1,11 @@
 [package]
 name = "libmarpa-sys"
-version = "0.1.3"
-authors = ["Josh Chase <jcjoshuachase@gmail.com>"]
-build = "build.rs"
+version = "0.1.4"
+authors = ["Josh Robson Chase <josh@robsonchase.com>"]
 description = "Low-level bindings to the libmarpa parsing engine"
-license = "MIT"
-repository = "https://github.com/Pursuit92/libmarpa-sys"
+license = "MIT/Apache"
+repository = "https://github.com/jrobsonchase/libmarpa-sys"
+documentation = "https://docs.rs/libmarpa-sys"
 
 [dependencies]
 libc = "0.1"
