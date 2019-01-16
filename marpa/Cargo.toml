@@ -9,6 +9,6 @@ documentation = "https://docs.rs/marpa"
 edition = "2018"
 
 [dependencies]
-regex = "0.1"
-regex-syntax = "0.2"
-libmarpa-sys = "0.1"
+regex = "1.1.0"
+regex-syntax = "0.6.4"
+libmarpa-sys = "0.1.2"
