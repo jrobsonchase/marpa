@@ -1,9 +1,10 @@
-use crate::thin::libmarpa_sys::*;
+use libmarpa_sys::*;
 
 use crate::thin::grammar;
 use crate::thin::grammar::Grammar;
 use crate::thin::symbol::Symbol;
 
+use std::mem;
 use std::ops::Range;
 
 #[derive(Debug)]
@@ -32,11 +33,11 @@ impl Iterator for EventIter {
     type Item = Event;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let mut event = Struct_marpa_event::default();
+        let mut event: Marpa_Event = unsafe { mem::zeroed() };
         match self.0.next() {
             None => None,
             Some(ix) => unsafe {
-                match marpa_g_event(grammar::internal(&self.1), &mut event as *mut Struct_marpa_event, ix) {
+                match marpa_g_event(grammar::internal(&self.1), &mut event, ix) as _ {
                     MARPA_EVENT_NONE => Some(Event::None),
                     MARPA_EVENT_COUNTED_NULLABLE => Some(Event::CountedNullable(event.t_value)),
                     MARPA_EVENT_EARLEY_ITEM_THRESHOLD => Some(Event::EarleyItemThreshold(event.t_value)),

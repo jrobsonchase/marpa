@@ -1,4 +1,4 @@
-use crate::thin::libmarpa_sys::*;
+use libmarpa_sys::*;
 use std::ops::Range;
 
 pub type Symbol = Marpa_Symbol_ID;

@@ -1,7 +1,7 @@
 use crate::thin::bocage as b;
 use crate::thin::bocage::Bocage;
 use crate::thin::grammar::Grammar;
-use crate::thin::libmarpa_sys::*;
+use libmarpa_sys::*;
 
 use crate::result::*;
 

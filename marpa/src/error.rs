@@ -1,17 +1,17 @@
 #![allow(unused)]
 
-pub struct Error(i32, Option<String>);
+pub struct Error(u32, Option<String>);
 
 impl Error {
-    pub fn get_code(&self) -> i32 {
+    pub fn get_code(&self) -> u32 {
         self.0
     }
 }
 
 impl ::std::error::Error for Error {
     fn description(&self) -> &str {
-        match self.0 {
-            i if i >= 0 => MARPA_ERROR_DESCRIPTION[self.0 as usize].2,
+        match self.0 as usize {
+            i if i < MARPA_ERROR_DESCRIPTION.len() => MARPA_ERROR_DESCRIPTION[i].2,
             _ => match self.1 {
                 Some(ref s) => s,
                 _ => "undefined error",
@@ -33,10 +33,10 @@ impl ::std::fmt::Debug for Error {
     }
 }
 
-impl From<i32> for Error {
-    fn from(other: i32) -> Error {
+impl From<u32> for Error {
+    fn from(other: u32) -> Error {
         match other {
-            i if i >= 0 => Error(i, None),
+            i if (i as usize) < MARPA_ERROR_DESCRIPTION.len() => Error(i, None),
             i => Error(i, Some(format!("undefined error: {}", i))),
         }
     }
@@ -50,7 +50,7 @@ impl<'a> From<&'a str> for Error {
 
 impl From<String> for Error {
     fn from(other: String) -> Error {
-        Error(-1, Some(other))
+        Error(std::u32::MAX, Some(other))
     }
 }
 
@@ -63,7 +63,7 @@ impl ::std::ops::Deref for Error {
     }
 }
 
-type MarpaDescription = (i32, &'static str, &'static str);
+type MarpaDescription = (u32, &'static str, &'static str);
 
 #[allow(unused)]
 const MARPA_ERROR_DESCRIPTION: &[MarpaDescription] = &[

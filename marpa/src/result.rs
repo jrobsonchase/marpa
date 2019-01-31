@@ -9,7 +9,7 @@ pub fn err<T>(msg: &str) -> Result<T> {
     Err(msg.into())
 }
 
-pub fn err_code<T>(code: i32) -> Result<T> {
+pub fn err_code<T>(code: u32) -> Result<T> {
     Err(code.into())
 }
 

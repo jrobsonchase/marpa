@@ -1,4 +1,4 @@
-use crate::thin::libmarpa_sys::*;
+use libmarpa_sys::*;
 
 use crate::result::*;
 
@@ -56,7 +56,7 @@ impl Grammar {
 
     // either return the error result from the grammar or an empty Ok
     fn error(&self) -> Result<()> {
-        match unsafe { marpa_g_error(self.internal, ptr::null_mut()) } {
+        match unsafe { marpa_g_error(self.internal, ptr::null_mut()) as _ } {
             0 => Ok(()),
             code => {
                 unsafe { marpa_g_error_clear(self.internal) };
@@ -303,7 +303,7 @@ impl Grammar {
                 rhs,
                 sep,
                 nonempty as i32,
-                if proper { MARPA_PROPER_SEPARATION } else { 0 },
+                if proper { MARPA_PROPER_SEPARATION as _ } else { 0 },
             )
         } {
             -2 => self.error_or("error creating sequence"),
@@ -520,6 +520,10 @@ mod tests {
         g.new_rule(2.into(), &[]).unwrap();
 
         let ids: Vec<i32> = vec![0, 1, 2];
+
+        g.set_start_symbol(0.into()).unwrap();
+
+        g.precompute().unwrap();
 
         assert!(g.rules().unwrap().collect::<Vec<Rule>>() == ids);
         assert!(g.rule_is_accessible(0).unwrap());

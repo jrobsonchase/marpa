@@ -1,6 +1,6 @@
-use crate::thin::libmarpa_sys::*;
 use crate::thin::tree;
 use crate::thin::{Grammar, Result, Step, Tree};
+use libmarpa_sys::*;
 
 pub struct Value {
     internal: Marpa_Value,
@@ -51,7 +51,7 @@ impl Iterator for Value {
 
     fn next(&mut self) -> Option<Self::Item> {
         unsafe {
-            match marpa_v_step(self.internal) {
+            match marpa_v_step(self.internal) as _ {
                 MARPA_STEP_INITIAL => self.next(),
                 MARPA_STEP_INACTIVE => None,
 
