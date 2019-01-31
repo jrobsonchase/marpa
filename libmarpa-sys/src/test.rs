@@ -1,6 +1,6 @@
 #![cfg(test)]
 
-use {marpa_c_error, marpa_c_init, marpa_g_new, Marpa_Config, MARPA_ERR_NONE};
+use crate::{marpa_c_error, marpa_c_init, marpa_g_new, Marpa_Config, MARPA_ERR_NONE};
 
 use std::ptr;
 
