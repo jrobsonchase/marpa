@@ -8,6 +8,9 @@ repository = "https://github.com/jrobsonchase/marpa"
 documentation = "https://docs.rs/libmarpa-sys"
 edition = "2018"
 
+[lib]
+crate-type = ["lib"]
+
 [dependencies]
 libc = "0.2.47"
 
