@@ -1,12 +1,35 @@
 # Rust Marpa Crate
 
-[![Travis Build Status](https://travis-ci.org/Pursuit92/marpa.svg?branch=master)](https://travis-ci.org/Pursuit92/marpa)
-[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![crates.io](http://meritbadge.herokuapp.com/marpa)](https://crates.io/crates/marpa)
+[![Travis Build Status](https://travis-ci.org/jrobsonchase/marpa.svg?branch=master)](https://travis-ci.org/jrobsonchase/marpa)
 
-This crate contains safe bindings for the marpa parsing engine.
+## Marpa
 
-Currently, they're a very thin layer over the C library and are in need of a
-frontend to generate a parser from an grammar.
+[![version](https://img.shields.io/crates/v/marpa.svg)](https://crates.io/crates/marpa/)
+[![documentation](https://docs.rs/marpa/badge.svg)](https://docs.rs/marpa/)
+[![license](https://img.shields.io/crates/l/marpa.svg)](https://crates.io/crates/marpa/)
 
-The documentation can be found [here](https://pursuit92.github.io/marpa).
+Marpa crate [README](marpa/README.md)
+
+## libmarpa-sys
+
+[![version](https://img.shields.io/crates/v/libmarpa-sys.svg)](https://crates.io/crates/libmarpa-sys/)
+[![documentation](https://docs.rs/libmarpa-sys/badge.svg)](https://docs.rs/libmarpa-sys/)
+[![license](https://img.shields.io/crates/l/libmarpa-sys.svg)](https://crates.io/crates/libmarpa-sys/)
+
+libmarpa-sys crate [README](libmarpa-sys/README.md)
+
+## License
+
+Licensed under either of
+
+* Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or <http://www.apache.org/licenses/LICENSE-2.0>)
+* MIT license ([LICENSE-MIT](LICENSE-MIT) or <http://opensource.org/licenses/MIT>)
+
+at your option.
+
+### Contribution
+
+Unless you explicitly state otherwise, any contribution intentionally
+submitted for inclusion in the work by you, as defined in the Apache-2.0
+license, shall be dual licensed as above, without any additional terms or
+conditions.
