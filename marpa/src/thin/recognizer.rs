@@ -2,9 +2,9 @@ use crate::thin::earley::*;
 use crate::thin::event::EventIter;
 use crate::thin::grammar as g;
 use crate::thin::grammar::Grammar;
-use crate::thin::libmarpa_sys::*;
 use crate::thin::progress::*;
 use crate::thin::symbol::Symbol;
+use libmarpa_sys::*;
 
 use crate::result::*;
 
@@ -64,7 +64,7 @@ impl Recognizer {
     }
 
     pub fn alternative(&mut self, tok: Symbol, val: i32, len: i32) -> Result<()> {
-        match unsafe { marpa_r_alternative(self.internal, tok, val, len) } {
+        match unsafe { marpa_r_alternative(self.internal, tok, val, len) as _ } {
             MARPA_ERR_NONE => Ok(()),
             err => err_code(err),
         }

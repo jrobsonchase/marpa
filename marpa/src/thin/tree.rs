@@ -1,6 +1,6 @@
-use crate::thin::libmarpa_sys::*;
 use crate::thin::order as o;
 use crate::thin::{Grammar, Order, Result, Value};
+use libmarpa_sys::*;
 
 pub struct Tree {
     internal: Marpa_Tree,

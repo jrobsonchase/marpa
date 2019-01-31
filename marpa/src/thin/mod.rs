@@ -1,5 +1,3 @@
-extern crate libmarpa_sys;
-
 #[macro_use]
 mod macros;
 

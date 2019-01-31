@@ -1,6 +1,6 @@
 [package]
 name = "libmarpa-sys"
-version = "0.1.3"
+version = "0.2.0"
 authors = ["Josh Robson Chase <josh@robsonchase.com>"]
 description = "Low-level bindings to the libmarpa parsing engine"
 license = "MIT/Apache-2.0"
@@ -14,3 +14,5 @@ libc = "0.2.47"
 [build-dependencies]
 flate2 = "1.0.6"
 tar = "0.4.20"
+bindgen = "0.47.1"
+lazy_static = "1.2.0"

@@ -1,6 +1,7 @@
+use libmarpa_sys::*;
+
 use crate::thin::earley::*;
 use crate::thin::grammar::Grammar;
-use crate::thin::libmarpa_sys::*;
 use crate::thin::recognizer as r;
 use crate::thin::recognizer::Recognizer;
 
