@@ -6,7 +6,7 @@ use crate::tree_builder::tree::Handle;
 use crate::tree_builder::tree::Node;
 use std::collections::HashSet;
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct TreeBuilder {
     token_rules: HashSet<Rule>,
     discard_rules: HashSet<Rule>,
