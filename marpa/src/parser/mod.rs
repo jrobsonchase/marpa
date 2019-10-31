@@ -85,11 +85,13 @@ impl Parser {
 
     pub fn run_recognizer<T: TokenSource<U>, U: Token>(&mut self, tokens: T) -> Result<Tree> {
         let mut tokens = tokens;
-        match self.state {
-            MarpaState::G => self.adv_marpa()?,
-            MarpaState::GReady => self.adv_marpa()?,
-            _ => {}
-        };
+        loop {
+            // just prep the recognizer, irrespective of initial state
+            match self.state {
+                R(_) => break,
+                _ => self.adv_marpa()?,
+            }
+        }
         {
             // limit recognizer borrow
             let r = get_state!(self, R);
