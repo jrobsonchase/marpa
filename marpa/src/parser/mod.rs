@@ -14,31 +14,19 @@ use crate::thin::{
 
 #[allow(dead_code)]
 enum MarpaState {
-    G(Grammar),
+    G,
+    GReady,
     R(Recognizer),
     B(Bocage),
     O(Order),
     T(Tree),
 }
 
-use self::MarpaState::{B, G, O, R, T};
+use self::MarpaState::{GReady, B, G, O, R, T};
 
 impl MarpaState {
     fn new() -> Self {
-        G(Grammar::new().unwrap())
-    }
-
-    fn adv(&mut self) -> Result<MarpaState> {
-        match self {
-            G(ref mut g) => {
-                g.precompute()?;
-                Recognizer::new(g.clone()).map(R)
-            }
-            R(ref r) => Bocage::new(r.clone()).map(B),
-            B(ref b) => Order::new(b.clone()).map(O),
-            O(ref o) => Tree::new(o.clone()).map(T),
-            T(_) => Err("No next state".into()),
-        }
+        G
     }
 }
 
@@ -48,9 +36,17 @@ impl Default for MarpaState {
     }
 }
 
-#[derive(Default)]
 pub struct Parser {
+    grammar: Grammar,
     state: MarpaState,
+}
+impl Default for Parser {
+    fn default() -> Self {
+        Parser {
+            state: MarpaState::default(),
+            grammar: Grammar::new().unwrap(),
+        }
+    }
 }
 
 macro_rules! get_state {
@@ -67,20 +63,33 @@ impl Parser {
         Parser::default()
     }
 
-    pub fn with_grammar(g: Grammar) -> Self {
-        Parser { state: G(g) }
+    pub fn with_grammar(grammar: Grammar) -> Self {
+        Parser { state: G, grammar }
     }
 
     fn adv_marpa(&mut self) -> Result<()> {
-        self.state = self.state.adv()?;
+        let next_state = match self.state {
+            G => {
+                self.grammar.precompute()?;
+                Recognizer::new(self.grammar.clone()).map(R)
+            }
+            GReady => Recognizer::new(self.grammar.clone()).map(R),
+            R(ref r) => Bocage::new(r.clone()).map(B),
+            B(ref b) => Order::new(b.clone()).map(O),
+            O(ref o) => Tree::new(o.clone()).map(T),
+            T(_) => Ok(GReady),
+        };
+        self.state = next_state?;
         Ok(())
     }
 
     pub fn run_recognizer<T: TokenSource<U>, U: Token>(&mut self, tokens: T) -> Result<Tree> {
         let mut tokens = tokens;
-        if let G(_) = self.state {
-            self.adv_marpa()?
-        }
+        match self.state {
+            MarpaState::G => self.adv_marpa()?,
+            MarpaState::GReady => self.adv_marpa()?,
+            _ => {}
+        };
         {
             // limit recognizer borrow
             let r = get_state!(self, R);
