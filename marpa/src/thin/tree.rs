@@ -53,7 +53,7 @@ impl Iterator for Tree {
         match unsafe { marpa_t_next(self.internal) } {
             -1 => None,
             i if i >= 0 => {
-                if let Ok(val) = Value::new(self.clone()) {
+                if let Ok(val) = Value::new(&self) {
                     Some(val)
                 } else {
                     None

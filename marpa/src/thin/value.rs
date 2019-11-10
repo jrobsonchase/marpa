@@ -10,12 +10,14 @@ pub struct Value {
 }
 
 impl Value {
-    pub fn new(t: Tree) -> Result<Value> {
+    pub fn new(t: &Tree) -> Result<Value> {
         let t_internal = tree::internal(&t);
         let grammar = tree::grammar(&t);
-        match unsafe { marpa_v_new(t_internal) } {
-            n if n.is_null() => grammar.error_or("error creating value"),
-            v => Ok(Value { internal: v, grammar }),
+        let v = unsafe { marpa_v_new(t_internal) };
+        if v.is_null() {
+            grammar.error_or("error creating value") }
+        else {
+            Ok(Value { internal: v, grammar })
         }
     }
 }
