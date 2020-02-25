@@ -58,7 +58,7 @@ where
 {
     let configure_status = Command::new(path.as_ref().join("configure"))
         .current_dir(&path)
-        .env("CFLAGS", "-fPIC")
+        .env("CFLAGS", "-fPIC -O3")
         .status()?;
     if !configure_status.success() {
         return Err(io::Error::new(io::ErrorKind::Other, "configure failed"));
