@@ -91,4 +91,11 @@ impl Order {
             e => panic!("unexpected error code: {}", e),
         }
     }
+
+    pub fn or_node_and_node_count(&mut self, or_node_id: usize) -> Result<i32> {
+        match unsafe { _marpa_o_or_node_and_node_count(self.internal, or_node_id as i32) } {
+            m if m >= 0 => Ok(m),
+            e => panic!("unexpected error code: {}", e),
+        }
+    }
 }

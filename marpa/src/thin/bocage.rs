@@ -70,6 +70,20 @@ impl Bocage {
             e => panic!("unexpected error code: {}", e),
         }
     }
+
+    pub fn top_or_node(&self) -> Result<i32> {
+        match unsafe { _marpa_b_top_or_node(self.internal) } {
+            i if i > 0 => Ok(i),
+            code => Err(format!("failed to get top node in Bocage: {}", code).into())
+        }
+    }
+
+    pub fn and_node_cause(&self, node_id:i32) -> Result<i32> {
+        match unsafe { _marpa_b_and_node_cause(self.internal, node_id) } {
+            i if i > 0 => Ok(i),
+            code => Err(format!("failed to get and_node cause in Bocage: {}", code).into())
+        }
+    }
 }
 
 #[cfg(test)]

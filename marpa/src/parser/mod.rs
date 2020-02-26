@@ -1,5 +1,6 @@
 use crate::lexer::token::Token;
 use crate::lexer::token_source::TokenSource;
+use crate::asf::ASF;
 
 use crate::result::Result;
 
@@ -75,7 +76,9 @@ impl Parser {
             }
             GReady => Recognizer::new(self.grammar.clone()).map(R),
             R(ref r) => Bocage::new(r.clone()).map(B),
-            B(ref b) => Order::new(b.clone()).map(O),
+            B(ref b) => {
+                Order::new(b.clone()).map(O)
+            },
             O(ref o) => Tree::new(o.clone()).map(T),
             T(_) => Ok(GReady),
         };
@@ -115,6 +118,13 @@ impl Parser {
                 return Ok(tree.clone());
             }
         }
+    }
+
+    /// This is roughly equivalent to `$asf->traverse` in Marpa::R2,
+    /// but the ASF details are hidden under the hood.
+    pub fn asf_traverse<T: TokenSource<U>, U: Token>(&mut self, tokens: T) -> Result<Tree> {
+        let mut asf = ASF::new();
+        unimplemented!()
     }
 
     fn consume_tok<U: Token>(r: &mut Recognizer, tok: U) -> Result<()> {
