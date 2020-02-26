@@ -12,11 +12,11 @@ use marpa::tree_builder::*;
 use std::io::Cursor;
 
 #[test]
-fn main() {
-    real_main().unwrap();
+fn simple_expression_parse() {
+    assert!(runner_expression_parse().is_ok(), "failed to run recognizer");
 }
 
-fn real_main() -> Result<()> {
+fn runner_expression_parse() -> Result<()> {
     let mut g = Grammar::new()?;
 
     let ws_char = g.string_set(None, "\t\n\r ")?;
