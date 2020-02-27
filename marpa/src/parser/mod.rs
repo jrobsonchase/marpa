@@ -1,6 +1,6 @@
 use crate::lexer::token::Token;
 use crate::lexer::token_source::TokenSource;
-use crate::asf::ASF;
+use crate::asf::{Glade,ASF, Traverser};
 
 use crate::result::Result;
 
@@ -120,16 +120,19 @@ impl Parser {
         }
     }
 
-    /// This is roughly equivalent to `$asf->traverse` in Marpa::R2,
-    /// but the ASF details are hidden under the hood.
-    pub fn asf_traverse<T: TokenSource<U>, U: Token>(&mut self, tokens: T) -> Result<Tree> {
-        let mut asf = ASF::new();
-        unimplemented!()
-    }
-
     fn consume_tok<U: Token>(r: &mut Recognizer, tok: U) -> Result<()> {
         r.alternative(tok.sym(), tok.value(), 1)?;
         r.earleme_complete()?;
         Ok(())
     }
+
+    /// This is roughly equivalent to `$asf->traverse` in Marpa::R2,
+    /// but the ASF details are hidden under the hood.
+    pub fn parse_and_traverse_forest<T: TokenSource<U>, U: Token>(&mut self, tokens: T, traverser: Traverser) -> Result<()> {
+        self.adv_marpa()?; // ensure we're in GReady
+        let recce = Recognizer::new(self.grammar.clone())?;
+        let mut asf = ASF::new(recce)?;
+        unimplemented!()
+    }
+
 }

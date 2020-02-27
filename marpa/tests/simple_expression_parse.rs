@@ -1,5 +1,3 @@
-#![allow(non_snake_case, unused_variables)]
-
 extern crate marpa;
 
 use marpa::grammar::Grammar;
@@ -25,16 +23,12 @@ fn runner_expression_parse() -> Result<()> {
     let term = g.literal_string(None, ";")?;
 
     let dquote = g.literal_string(None, "\"")?;
-    let squote = g.literal_string(None, "'")?;
     let escape = g.literal_string(None, "\\")?;
     let not_dquote = g.inverse_string_set(None, "\"")?;
-    let not_squote = g.inverse_string_set(None, "'")?;
     let dquote_escape = g.rule(None, &[escape, dquote])?;
-    let squote_escape = g.rule(None, &[escape, squote])?;
     let str_chars = g.alternative(None, &[not_dquote, dquote_escape])?;
     let str_chars_star = g.star(None, str_chars)?;
     let string = g.rule(None, &[dquote, str_chars_star, dquote])?;
-    let char_chars = g.alternative(None, &[not_squote, squote_escape])?;
 
     let lower = g.char_range(None, 'a', 'z')?;
     let upper = g.char_range(None, 'A', 'Z')?;
