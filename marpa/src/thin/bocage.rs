@@ -98,6 +98,12 @@ impl Bocage {
             code => Err(format!("failed to get and_node symbol in Bocage: {}", code).into())
         }
     }
+    pub fn and_node_predecessor(&self, node_id:i32) -> Option<i32> {
+        match unsafe { _marpa_b_and_node_predecessor(self.internal, node_id) } {
+            i if i > 0 => Some(i),
+            _ => None
+        }
+    }
 }
 
 #[cfg(test)]

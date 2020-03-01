@@ -18,7 +18,7 @@ pub trait Traverser {
 const NID_LEAF_BASE : i32 = -43;
 
 struct Nidset {
-  nids: Vec<usize>,
+  nids: Vec<i32>,
   id: usize
 }
 
@@ -28,7 +28,7 @@ pub struct ASF {
   nidset_by_id: HashMap<usize, Nidset>,
   powerset_by_id: HashMap<usize, Nidset>,
   glades: HashMap<usize, Glade>,
-  intset_by_key: HashMap<Vec<usize>, usize>,
+  intset_by_key: HashMap<Vec<i32>, usize>,
   or_nodes: Vec<Nidset>,
   recce: Recognizer,
   bocage: Bocage,
@@ -36,7 +36,7 @@ pub struct ASF {
 }
 
 impl ASF {
-  fn intset_id(&mut self, mut ids: Vec<usize>) -> usize {
+  fn intset_id(&mut self, mut ids: Vec<i32>) -> usize {
     ids.sort();
     let intset_id = self.intset_by_key.entry(ids)
       .or_insert(self.next_inset_id+1);
@@ -46,7 +46,7 @@ impl ASF {
     *intset_id
   }
 
-  fn obtain_nidset(&mut self, nids: Vec<usize>) -> &Nidset {
+  fn obtain_nidset(&mut self, nids: Vec<i32>) -> &Nidset {
     let id           = self.intset_id(nids.clone());
     let nidset = self.nidset_by_id.entry(id).or_insert_with(|| {
       Nidset {
@@ -61,18 +61,24 @@ impl ASF {
     recce.start_input()?;
     // Initialize all usual thin:: structs here, we'll need them
     let bocage = Bocage::new(recce.clone())?;
-    let ordering = Order::new(bocage.clone())?;
-    // my $ordering = $recce->ordering_get();
-    let or_nodes = Vec::new();
-    // OR_NODE: for ( my $or_node_id = 0;; $or_node_id++ ) {
-    //     my @and_node_ids =
-    //         $ordering->or_node_and_node_count($or_node_id);
-    //     last OR_NODE if not scalar @and_node_ids;
-    //     my @sorted_and_node_ids = map { $_->[-1] } sort { $a <=> $b } map {
-    //         [ ( $bocage->_marpa_b_and_node_predecessor($_) // -1 ), $_ ]
-    //     } @and_node_ids;
-    //     $or_nodes->[$or_node_id] = \@and_node_ids;
-    // } ## end OR_NODE: for ( my $or_node_id = 0;; $or_node_id++ )
+    let mut ordering = recce.ordering_get().expect(
+      "An attempt was make to create an ASF for a null parse\n
+          A null parse is a successful parse of a zero-length string\n
+          ASF's are not defined for null parses");
+    let mut or_nodes = Vec::new();
+    let mut or_node_id = 0;
+    loop {
+      let mut and_node_ids = ordering.or_node_and_node_ids(or_node_id);
+      if and_node_ids.is_empty() {break;}
+      let mut build_and_node_ids = and_node_ids.iter().map(|id|
+        (( bocage.and_node_predecessor(*id).unwrap_or(-1)), id)).collect::<Vec<_>>();
+      // build_and_node_ids.sort();
+      // let sorted_and_node_ids = build_and_node_ids.into_iter().map(|(k,v)| v).collect();
+      or_nodes.insert(or_node_id,
+         Nidset { id: or_node_id, nids: and_node_ids });
+      or_node_id += 1;
+    }
+
     Ok(ASF {
       next_inset_id: 0,
       nidset_by_id: HashMap::new(),
@@ -92,7 +98,7 @@ impl ASF {
     let augment_or_node_id = bocage.top_or_node()?;
     let augment_and_node_id = self.or_nodes[augment_or_node_id as usize].id;
     let start_or_node_id = bocage.and_node_cause(augment_and_node_id as i32)?;
-    let base_nidset = self.obtain_nidset(vec![start_or_node_id as usize]);
+    let base_nidset = self.obtain_nidset(vec![start_or_node_id]);
     let glade_id = base_nidset.id;
     // Cannot "obtain" the glade if it is not registered
     let mut glade = self.glades.entry(glade_id).or_insert(Glade::default());
@@ -232,14 +238,14 @@ impl ASF {
     }
   }
 
-  fn nid_sort_ix(&self, nid: usize) -> Result<i32> {
+  fn nid_sort_ix(&self, nid: i32) -> Result<i32> {
     let grammar = self.recce.grammar();
     let bocage    = &self.bocage;
     if nid >= 0 {
-        let irl_id = bocage.or_node_irl(nid as i32)?;
+        let irl_id = bocage.or_node_irl(nid)?;
         return grammar.source_xrl(irl_id);
     }
-    let and_node_id  = nid_to_and_node(nid as i32);
+    let and_node_id  = nid_to_and_node(nid);
     let token_nsy_id = bocage.and_node_symbol(and_node_id)?;
     let token_id     = grammar.source_xsy(token_nsy_id)?;
 
