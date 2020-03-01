@@ -238,6 +238,10 @@ impl Recognizer {
     pub fn events(&self) -> Result<EventIter> {
         self.grammar.events()
     }
+
+    pub fn grammar(&self) -> &Grammar {
+        &self.grammar
+    }
 }
 
 #[cfg(test)]

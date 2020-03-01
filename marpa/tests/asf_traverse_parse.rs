@@ -6,10 +6,11 @@ use marpa::parser::*;
 use marpa::result::Result;
 use marpa::stack::*;
 use marpa::tree_builder::*;
-use marpa::asf::{Glade};
+use marpa::asf::{Glade, Traverser};
 
 use std::io::Cursor;
 use std::rc::Rc;
+use std::collections::HashMap;
 
 #[test]
 fn asf_traverse_parse() {
@@ -60,6 +61,15 @@ fn runner_asf_traverse() -> Result<Vec<String>> {
     b.rule(r.rule());
   }
 
+  let mut rule_names = HashMap::new();
+  rule_names.insert(np.rule(),"NP");
+  rule_names.insert(vp.rule(),"VP");
+  rule_names.insert(s.rule(),"S");
+  rule_names.insert(nn.rule(),"NN");
+  rule_names.insert(nns.rule(),"NNS");
+  rule_names.insert(vbz.rule(),"VBZ");
+  rule_names.insert(dt.rule(),"DT");
+
   let mut parser = Parser::with_grammar(g.unwrap());
   let panda_input = "a panda eats shoots and leaves.";
   let mut parsed_result_iterator = parser.run_recognizer(ByteScanner::new(Cursor::new(panda_input)))?;
@@ -74,7 +84,7 @@ fn runner_asf_traverse() -> Result<Vec<String>> {
   // reparse it via the ASFs
   let mut parse_forest_iterator = parser.parse_and_traverse_forest(
     ByteScanner::new(Cursor::new(panda_input)),
-    Rc::new(|g| full_traverser(g))
+    Box::new(ExhaustiveTraverser { rule_names })
   )?;
 
   // Now that the ASFs work with the full traversal, reparse using a pacifist pragma
@@ -84,61 +94,69 @@ fn runner_asf_traverse() -> Result<Vec<String>> {
 }
 
 
-fn full_traverser(glade: Glade) -> Result<()> {
-  // This routine converts the glade into a list of Penn-tagged elements.
-  // It is called recursively.
-  let rule_id = glade.rule_id();
-  // let symbol_id = glade.symbol_id();
-  // // let symbol_name = panda_grammar.symbol_name(symbol_id);
+struct ExhaustiveTraverser {
+  rule_names: HashMap<i32, &'static str>
+}
 
-  // // A token is a single choice, and we know enough to fully Penn-tag it
-  // if rule_id.is_none() {
-  //   let literal  = glade.literal();
-  //   let penn_tag = penn_tag.get(symbol_id);
-  //   return Ok(vec![format!("({} {})",penn_tag, literal)]);
-  // }
+impl Traverser for ExhaustiveTraverser {
+  type ParseTree = ();
+  type ParseState = ();
+  fn traverse_glade(&self, glade: Glade, state: Self::ParseState) -> Result<()> {
+    // This routine converts the glade into a list of Penn-tagged elements.
+    // It is called recursively.
+    let rule_id = glade.rule_id();
+    // let symbol_id = glade.symbol_id();
+    // // let symbol_name = panda_grammar.symbol_name(symbol_id);
 
-  // let mut return_value = Vec::new();
+    // // A token is a single choice, and we know enough to fully Penn-tag it
+    // if rule_id.is_none() {
+    //   let literal  = glade.literal();
+    //   let penn_tag = penn_tag.get(symbol_id);
+    //   return Ok(vec![format!("({} {})",penn_tag, literal)]);
+    // }
 
-  // loop {
-  //   // The results at each position are a list of choices, so
-  //   // to produce a new result list, we need to take a Cartesian
-  //   // product of all the choices
-  //   let mut results = vec![Vec::new()];
-  //   for rh_ix in 0 .. glade.rh_length() {
-  //     let mut new_results = Vec::new();
-  //     for prev_result in results.drain(..) {
-  //       let child_value = glade.rh_value(rh_ix);
-  //       for new_value in child_value.into_iter() {
-  //         let prev_update = prev_result.clone();
-  //         prev_update.push(new_value);
-  //         new_results.push(prev_update);
-  //       }
-  //     }
-  //     results = new_results;
-  //   }
+    // let mut return_value = Vec::new();
 
-  //   // Special case for the start rule
-  //   // if ( $symbol_name eq '[:start]' ) {
-  //   //   return [ map { join q{}, @{$_} } @results ];
-  //   // }
+    // loop {
+    //   // The results at each position are a list of choices, so
+    //   // to produce a new result list, we need to take a Cartesian
+    //   // product of all the choices
+    //   let mut results = vec![Vec::new()];
+    //   for rh_ix in 0 .. glade.rh_length() {
+    //     let mut new_results = Vec::new();
+    //     for prev_result in results.drain(..) {
+    //       let child_value = glade.rh_value(rh_ix);
+    //       for new_value in child_value.into_iter() {
+    //         let prev_update = prev_result.clone();
+    //         prev_update.push(new_value);
+    //         new_results.push(prev_update);
+    //       }
+    //     }
+    //     results = new_results;
+    //   }
 
-  //   // Now we have a list of choices, as a list of lists.  Each sub list
-  //   // is a list of Penn-tagged elements, which we need to join into
-  //   // a single Penn-tagged element.  The result will be to collapse
-  //   // one level of lists, and leave us with a list of Penn-tagged
-  //   // elements
+    //   // Special case for the start rule
+    //   // if ( $symbol_name eq '[:start]' ) {
+    //   //   return [ map { join q{}, @{$_} } @results ];
+    //   // }
 
-  //   return_value.push(results.into_iter().map(|result|
-  //      format!("({} {})", penn_tag.get(symbol_id), result.join(" "))
-  //   ));
+    //   // Now we have a list of choices, as a list of lists.  Each sub list
+    //   // is a list of Penn-tagged elements, which we need to join into
+    //   // a single Penn-tagged element.  The result will be to collapse
+    //   // one level of lists, and leave us with a list of Penn-tagged
+    //   // elements
 
-  //   // Look at the next alternative in this glade, or end the
-  //   // loop if there is none
-  //   if glade.next().is_none() {
-  //     break;
-  //   }
-  // }
+    //   return_value.push(results.into_iter().map(|result|
+    //      format!("({} {})", penn_tag.get(symbol_id), result.join(" "))
+    //   ));
 
-  Ok(())
+    //   // Look at the next alternative in this glade, or end the
+    //   // loop if there is none
+    //   if glade.next().is_none() {
+    //     break;
+    //   }
+    // }
+
+    Ok(())
+  }
 }

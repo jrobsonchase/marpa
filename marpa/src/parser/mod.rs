@@ -128,7 +128,7 @@ impl Parser {
 
     /// This is roughly equivalent to `$asf->traverse` in Marpa::R2,
     /// but the ASF details are hidden under the hood.
-    pub fn parse_and_traverse_forest<T: TokenSource<U>, U: Token>(&mut self, tokens: T, traverser: Traverser) -> Result<()> {
+    pub fn parse_and_traverse_forest<T: TokenSource<U>, U: Token, State, PT>(&mut self, tokens: T, traverser: Box<dyn Traverser<ParseTree = PT, ParseState=State>>) -> Result<()> {
         self.adv_marpa()?; // ensure we're in GReady
         let recce = Recognizer::new(self.grammar.clone())?;
         let mut asf = ASF::new(recce)?;

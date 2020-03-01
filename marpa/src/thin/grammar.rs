@@ -54,6 +54,11 @@ impl Grammar {
         }
     }
 
+
+    pub fn internal(&self) -> Marpa_Grammar {
+        self.internal
+    }
+
     // either return the error result from the grammar or an empty Ok
     fn error(&self) -> Result<()> {
         match unsafe { marpa_g_error(self.internal, ptr::null_mut()) as _ } {
@@ -383,6 +388,20 @@ impl Grammar {
         match unsafe { marpa_g_prediction_symbol_activate(self.internal, sym, reactivate as i32) } {
             -2 => self.error_or("error setting symbol to reactivate"),
             _ => Ok(()),
+        }
+    }
+
+    pub fn source_xrl(&self, irl_id: i32) -> Result<i32> {
+        match unsafe { _marpa_g_source_xrl(self.internal, irl_id) } {
+            i if i<0 => self.error_or("error getting source xrl"),
+            i => Ok(i),
+        }
+    }
+
+    pub fn source_xsy(&self, id: i32) -> Result<i32> {
+        match unsafe { _marpa_g_source_xsy(self.internal, id) } {
+            i if i<0 => self.error_or("error getting source xrl"),
+            i => Ok(i),
         }
     }
 

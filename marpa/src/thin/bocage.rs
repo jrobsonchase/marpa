@@ -78,10 +78,24 @@ impl Bocage {
         }
     }
 
+    pub fn or_node_irl(&self, node_id: i32) -> Result<i32> {
+        match unsafe { _marpa_b_or_node_irl(self.internal, node_id) } {
+            i if i > 0 => Ok(i),
+            code => Err(format!("failed to get or node irl in Bocage: {}", code).into())
+        }
+    }
+
     pub fn and_node_cause(&self, node_id:i32) -> Result<i32> {
         match unsafe { _marpa_b_and_node_cause(self.internal, node_id) } {
             i if i > 0 => Ok(i),
             code => Err(format!("failed to get and_node cause in Bocage: {}", code).into())
+        }
+    }
+
+    pub fn and_node_symbol(&self, node_id:i32) -> Result<i32> {
+        match unsafe { _marpa_b_and_node_symbol(self.internal, node_id) } {
+            i if i > 0 => Ok(i),
+            code => Err(format!("failed to get and_node symbol in Bocage: {}", code).into())
         }
     }
 }
