@@ -84,11 +84,17 @@ fn runner_asf_traverse() -> Result<Vec<String>> {
   // reparse it via the ASFs
   let mut parse_forest_iterator = parser.parse_and_traverse_forest(
     ByteScanner::new(Cursor::new(panda_input)),
-    Box::new(ExhaustiveTraverser { rule_names })
+    (),//init state
+    Box::new(ExhaustiveTraverser { rule_names: rule_names.clone() })
   )?;
 
   // Now that the ASFs work with the full traversal, reparse using a pacifist pragma
   // Pragma: Pandas are pacifists (don't shoot)
+  let mut parse_forest_iterator = parser.parse_and_traverse_forest(
+    ByteScanner::new(Cursor::new(panda_input)),
+    (),//init state
+    Box::new(PruningTraverser { rule_names })
+  )?;
 
   Ok(Vec::new())
 }
@@ -97,11 +103,15 @@ fn runner_asf_traverse() -> Result<Vec<String>> {
 struct ExhaustiveTraverser {
   rule_names: HashMap<i32, &'static str>
 }
+struct PruningTraverser {
+  rule_names: HashMap<i32, &'static str>
+}
+
 
 impl Traverser for ExhaustiveTraverser {
   type ParseTree = ();
   type ParseState = ();
-  fn traverse_glade(&self, glade: Glade, state: Self::ParseState) -> Result<()> {
+  fn traverse_glade(&self, glade: &mut Glade, state: Self::ParseState) -> Result<(Self::ParseTree, Self::ParseState)> {
     // This routine converts the glade into a list of Penn-tagged elements.
     // It is called recursively.
     let rule_id = glade.rule_id();
@@ -157,6 +167,14 @@ impl Traverser for ExhaustiveTraverser {
     //   }
     // }
 
-    Ok(())
+    Ok(((),()))
+  }
+}
+
+impl Traverser for PruningTraverser {
+  type ParseTree = ();
+  type ParseState = ();
+  fn traverse_glade(&self, glade: &mut Glade, state: Self::ParseState) -> Result<(Self::ParseTree, Self::ParseState)> {
+    Ok(((),()))
   }
 }

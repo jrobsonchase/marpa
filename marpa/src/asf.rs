@@ -12,7 +12,7 @@ pub trait Traverser {
   type ParseTree;
   type ParseState;
 
-  fn traverse_glade(&self, glade: Glade, state: Self::ParseState) -> Result<Self::ParseTree>;
+  fn traverse_glade(&self, glade: &mut Glade, state: Self::ParseState) -> Result<(Self::ParseTree, Self::ParseState)>;
 }
 
 const NID_LEAF_BASE : i32 = -43;
@@ -20,6 +20,10 @@ const NID_LEAF_BASE : i32 = -43;
 struct Nidset {
   nids: Vec<i32>,
   id: usize
+}
+
+struct Powerset {
+  symches: Vec<usize>,
 }
 
 pub struct ASF {
@@ -36,18 +40,18 @@ pub struct ASF {
 }
 
 impl ASF {
-  fn intset_id(&mut self, mut ids: Vec<i32>) -> usize {
+  fn intset_id(&mut self, mut ids: Vec<i32>) -> (usize, Vec<i32>) {
     ids.sort();
-    let intset_id = self.intset_by_key.entry(ids)
+    let intset_id = self.intset_by_key.entry(ids.clone())
       .or_insert(self.next_inset_id+1);
     if *intset_id > self.next_inset_id {
       self.next_inset_id += 1;
     }
-    *intset_id
+    (*intset_id, ids)
   }
 
   fn obtain_nidset(&mut self, nids: Vec<i32>) -> &Nidset {
-    let id           = self.intset_id(nids.clone());
+    let (id, nids)           = self.intset_id(nids);
     let nidset = self.nidset_by_id.entry(id).or_insert_with(|| {
       Nidset {
         id,
@@ -57,11 +61,16 @@ impl ASF {
     &*nidset
   }
 
+  fn obtain_powerset(&mut self, symches: Vec<usize>) -> Powerset {
+    Powerset {
+      symches
+    }
+  }
+
   pub fn new(mut recce: Recognizer) -> Result<Self> {
-    recce.start_input()?;
     // Initialize all usual thin:: structs here, we'll need them
-    let bocage = Bocage::new(recce.clone())?;
-    let mut ordering = recce.ordering_get().expect(
+    let mut bocage = Bocage::new(&recce)?;
+    let mut ordering = bocage.get_ordering().expect(
       "An attempt was make to create an ASF for a null parse\n
           A null parse is a successful parse of a zero-length string\n
           ASF's are not defined for null parses");
@@ -72,6 +81,7 @@ impl ASF {
       if and_node_ids.is_empty() {break;}
       let mut build_and_node_ids = and_node_ids.iter().map(|id|
         (( bocage.and_node_predecessor(*id).unwrap_or(-1)), id)).collect::<Vec<_>>();
+      // TODO: Is this used anywhere?
       // build_and_node_ids.sort();
       // let sorted_and_node_ids = build_and_node_ids.into_iter().map(|(k,v)| v).collect();
       or_nodes.insert(or_node_id,
@@ -91,6 +101,12 @@ impl ASF {
       bocage,
       ordering
     })
+  }
+
+  pub fn traverse<PT,PS>(&mut self, init_state: PS, traverser: Box<dyn Traverser<ParseTree=PT, ParseState=PS>>) -> Result<(PT, PS)> {
+    let peak = self.peak()?;
+    let peak_glade = self.glade_obtain(peak)?;
+    traverser.traverse_glade(peak_glade, init_state)
   }
 
   fn peak(&mut self) -> Result<usize> {
@@ -123,53 +139,52 @@ impl ASF {
   }
 
   fn compute_symches(&mut self, glade_id: usize) -> Result<&mut Glade> {
-    let base_nidset = self.nidset_by_id.get(&glade_id).unwrap();
-    // let choicepoint;
-    // let choicepoint_powerset;
+    eprintln!("-- called compute_symches\n");
+    let mut source_data = Vec::new();
     {
-      let mut source_data = Vec::new();
+      let base_nidset = self.nidset_by_id.get(&glade_id).unwrap();
       for source_nid in base_nidset.nids.iter() {
         let sort_ix = self.nid_sort_ix(*source_nid)?;
-        source_data.push((sort_ix, source_nid ));
+        source_data.push((sort_ix, *source_nid ));
       }
-      source_data.sort_by_key(|k| k.0);
-      let mut nid_ix = 0;
-//         my ( $sort_ix_of_this_nid, $this_nid ) =
-//             @{ $sorted_source_data[ $nid_ix++ ] };
-//         my @nids_with_current_sort_ix = ();
-//         my $current_sort_ix           = $sort_ix_of_this_nid;
-//         my @symch_ids                 = ();
-//         'NID: while (1) {
-
-//             if ( $sort_ix_of_this_nid != $current_sort_ix ) {
-
-//                 # Currently only whole id break logic
-//                 my $nidset_for_sort_ix = Marpa::R2::Nidset->obtain( $asf,
-//                     @nids_with_current_sort_ix );
-//                 push @symch_ids, $nidset_for_sort_ix->id();
-//                 @nids_with_current_sort_ix = ();
-//                 $current_sort_ix           = $sort_ix_of_this_nid;
-//             } ## end if ( $sort_ix_of_this_nid != $current_sort_ix )
-//             last NID if not defined $this_nid;
-//             push @nids_with_current_sort_ix, $this_nid;
-//             my $sorted_entry = $sorted_source_data[ $nid_ix++ ];
-//             if ( defined $sorted_entry ) {
-//                 ( $sort_ix_of_this_nid, $this_nid ) = @{$sorted_entry};
-//                 next NID;
-//             }
-//             $this_nid            = undef;
-//             $sort_ix_of_this_nid = -2;
-//         } ## end NID: while (1)
-//         $choicepoint_powerset = Marpa::R2::Powerset->obtain( $asf, @symch_ids );
-//         $choicepoint->[Marpa::R2::Internal::Choicepoint::ASF] = $asf;
-//         $choicepoint->[Marpa::R2::Internal::Choicepoint::FACTORING_STACK] =
-//             undef;
     }
-
+    source_data.sort_by_key(|k| k.0);
+    let mut nid_ix = 0;
+    let (mut sort_ix_of_this_nid, this_nid) = source_data[nid_ix];
+    let mut this_nid_opt = Some(this_nid);
+    nid_ix += 1;
+    let mut nids_with_current_sort_ix = Vec::new();
+    let mut current_sort_ix           = sort_ix_of_this_nid;
+    let mut symch_ids                 = Vec::new();
+    'NID: loop {
+      if sort_ix_of_this_nid != current_sort_ix {
+        // Currently only whole id break logic
+        let nidset_for_sort_ix = self.obtain_nidset(nids_with_current_sort_ix.clone());
+        symch_ids.push(nidset_for_sort_ix.id);
+        nids_with_current_sort_ix = Vec::new();
+        current_sort_ix           = sort_ix_of_this_nid;
+      }
+      if this_nid_opt.is_none() {
+        break;
+      }
+      nids_with_current_sort_ix.push(this_nid_opt.unwrap());
+      nid_ix += 1;
+      if let Some((sort_ix_of_this_nid, this_nid)) = source_data.get(nid_ix-1) {
+        this_nid_opt = Some(*this_nid);
+        continue 'NID;
+      }
+      this_nid_opt            = None;
+      sort_ix_of_this_nid = -2;
+    }
+    let choicepoint_powerset = self.obtain_powerset(symch_ids);
+    // TODO: choicepoint needs to be a dedicated object here??
+    // choicepoint.[Marpa::R2::Internal::Choicepoint::ASF] = $asf;
+    // choicepoint.[Marpa::R2::Internal::Choicepoint::FACTORING_STACK] = undef;
     // Check if choicepoint already seen?
     let mut symches     = Vec::new();
     // let symch_count = choicepoint_powerset.count();
     'SYMCH: for symch_ix in 0 .. 0 { // ..  symch_count
+      dbg!(symch_ix);
       // choicepoint.factoring_stack = Vec::new();
 //         my $symch_nidset = $choicepoint_powerset->nidset($asf, $symch_ix);
 //         my $choicepoint_nid = $symch_nidset->nid(0);

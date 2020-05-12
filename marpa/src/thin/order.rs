@@ -12,7 +12,11 @@ pub struct Order {
     grammar: Grammar,
 }
 
-result_from!(Order, Bocage);
+impl From<&Bocage> for Result<Order> {
+    fn from(other: &Bocage) -> Self {
+        Order::new(other)
+    }
+}
 
 pub fn internal(order: &Order) -> Marpa_Order {
     order.internal
@@ -41,10 +45,9 @@ impl Drop for Order {
 }
 
 impl Order {
-    pub fn new(b: Bocage) -> Result<Order> {
-        let b_internal = b::internal(&b);
-        let grammar = b::grammar(&b);
-        match unsafe { marpa_o_new(b_internal) } {
+    pub fn new(b: &Bocage) -> Result<Order> {
+        let grammar = b.grammar();
+        match unsafe { marpa_o_new(b.internal()) } {
             n if n.is_null() => grammar.error_or("error creating order"),
             o => Ok(Order { internal: o, grammar }),
         }

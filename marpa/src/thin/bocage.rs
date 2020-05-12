@@ -4,7 +4,7 @@ use crate::thin::earley::*;
 use crate::thin::grammar::Grammar;
 use crate::thin::recognizer as r;
 use crate::thin::recognizer::Recognizer;
-
+use crate::thin::order::Order;
 use crate::result::*;
 
 pub struct Bocage {
@@ -12,14 +12,6 @@ pub struct Bocage {
     // we need to keep a reference to this accessible
     // in order to read error codes.
     grammar: Grammar,
-}
-
-pub fn internal(bocage: &Bocage) -> Marpa_Bocage {
-    bocage.internal
-}
-
-pub fn grammar(bocage: &Bocage) -> Grammar {
-    bocage.grammar.clone()
 }
 
 impl Clone for Bocage {
@@ -41,16 +33,24 @@ impl Drop for Bocage {
 }
 
 impl Bocage {
-    pub fn new_at_set(r: Recognizer, set: EarleySet) -> Result<Bocage> {
-        let r_internal = r::internal(&r);
-        let grammar = r::grammar(&r);
+    pub fn internal(&self) -> Marpa_Bocage {
+        self.internal
+    }
+
+    pub fn grammar(&self) -> Grammar {
+        self.grammar.clone()
+    }
+
+    pub fn new_at_set(r: &Recognizer, set: EarleySet) -> Result<Bocage> {
+        let r_internal = r::internal(r);
+        let grammar = r::grammar(r);
         match unsafe { marpa_b_new(r_internal, set) } {
             n if n.is_null() => grammar.error_or("error creating bocage"),
             b => Ok(Bocage { internal: b, grammar }),
         }
     }
 
-    pub fn new(r: Recognizer) -> Result<Bocage> {
+    pub fn new(r: &Recognizer) -> Result<Bocage> {
         Bocage::new_at_set(r, -1)
     }
 
@@ -104,6 +104,26 @@ impl Bocage {
             _ => None
         }
     }
+
+    pub fn get_ordering(&self) -> Option<Order> {
+        match Order::new(&self) {
+            Ok(o) => Some(o),
+            _ => None
+        }
+        // TODO?
+        // GIVEN_RANKING_METHOD: {
+        //     my $ranking_method =
+        //         $recce->[Marpa::R2::Internal::Recognizer::RANKING_METHOD];
+        //     if ( $ranking_method eq 'high_rule_only' ) {
+        //         do_high_rule_only($recce);
+        //         last GIVEN_RANKING_METHOD;
+        //     }
+        //     if ( $ranking_method eq 'rule' ) {
+        //         do_rank_by_rule($recce);
+        //         last GIVEN_RANKING_METHOD;
+        //     }
+        // } ## end GIVEN_RANKING_METHOD:
+    }
 }
 
 #[cfg(test)]
@@ -131,8 +151,8 @@ mod tests {
         }
         assert!(evs.len() != 0);
 
-        let _ = Bocage::new(r).unwrap();
+        let _ = Bocage::new(&r).unwrap();
     }
 }
 
-result_from!(Bocage, Recognizer);
+result_from_borrowed!(Bocage, Recognizer);

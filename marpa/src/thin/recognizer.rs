@@ -4,7 +4,6 @@ use crate::thin::grammar as g;
 use crate::thin::grammar::Grammar;
 use crate::thin::progress::*;
 use crate::thin::symbol::Symbol;
-use crate::thin::order::Order;
 use libmarpa_sys::*;
 
 use crate::result::*;
@@ -242,44 +241,6 @@ impl Recognizer {
 
     pub fn grammar(&self) -> &Grammar {
         &self.grammar
-    }
-
-    pub fn ordering_get(&self) -> Option<Order> {
-        None
-        // if recce.no_parse {
-        //     return None;
-        // }
-        // if let Some(ordering) = self.ordering {
-        //     return Some(ordering);
-        // }
-        // let parse_set_arg =self.end_of_parse;
-        // let grammar_c   = self.grammar.internal();
-        // let recce_c   = self.internal;
-        // $grammar_c->throw_set(0);
-        // my $bocage = $recce->[Marpa::R2::Internal::Recognizer::B_C] =
-        //     Marpa::R2::Thin::B->new( $recce_c, ( $parse_set_arg // -1 ) );
-        // $grammar_c->throw_set(1);
-        // if ( not $bocage ) {
-        //     $recce->[Marpa::R2::Internal::Recognizer::NO_PARSE] = 1;
-        //     return;
-        // }
-        // $ordering = $recce->[Marpa::R2::Internal::Recognizer::O_C] =
-        //     Marpa::R2::Thin::O->new($bocage);
-
-        // GIVEN_RANKING_METHOD: {
-        //     my $ranking_method =
-        //         $recce->[Marpa::R2::Internal::Recognizer::RANKING_METHOD];
-        //     if ( $ranking_method eq 'high_rule_only' ) {
-        //         do_high_rule_only($recce);
-        //         last GIVEN_RANKING_METHOD;
-        //     }
-        //     if ( $ranking_method eq 'rule' ) {
-        //         do_rank_by_rule($recce);
-        //         last GIVEN_RANKING_METHOD;
-        //     }
-        // } ## end GIVEN_RANKING_METHOD:
-
-        // ordering
     }
 }
 
