@@ -8,7 +8,6 @@ use std::ptr;
 
 pub struct Grammar {
     internal: Marpa_Grammar,
-    throw: bool,
 }
 
 pub fn internal(grammar: &Grammar) -> Marpa_Grammar {
@@ -18,7 +17,7 @@ pub fn internal(grammar: &Grammar) -> Marpa_Grammar {
 impl Clone for Grammar {
     fn clone(&self) -> Grammar {
         unsafe { marpa_g_ref(self.internal) };
-        Grammar { internal: self.internal, throw: true }
+        Grammar { internal: self.internal }
     }
 }
 
@@ -39,7 +38,7 @@ impl Grammar {
             cfg.error()?;
 
             assert!(marpa_g_force_valued(c_grammar) >= 0);
-            Ok(Grammar { internal: c_grammar, throw: true })
+            Ok(Grammar { internal: c_grammar })
         }
     }
 
@@ -51,7 +50,7 @@ impl Grammar {
             cfg.error()?;
 
             assert!(marpa_g_force_valued(c_grammar) >= 0);
-            Ok(Grammar { internal: c_grammar, throw: true, })
+            Ok(Grammar { internal: c_grammar })
         }
     }
 
@@ -500,16 +499,6 @@ impl Grammar {
             err => panic!("unexpected error code: {}", err),
         }
     }
-
-    pub fn enable_throw(&mut self) {
-        // porting from ->set_throw(1) in Marpa::R2
-        self.throw = true;
-    }
-    pub fn disable_throw(&mut self) {
-        // porting from ->set_throw(0) in Marpa::R2
-        self.throw = true;
-    }
-
 }
 
 #[cfg(test)]
