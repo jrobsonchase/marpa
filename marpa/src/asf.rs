@@ -15,15 +15,21 @@ pub trait Traverser {
   fn traverse_glade(&self, glade: &mut Glade, state: Self::ParseState) -> Result<(Self::ParseTree, Self::ParseState)>;
 }
 
-const NID_LEAF_BASE : i32 = -43;
-
+#[derive(Debug, Clone)]
 struct Nidset {
   nids: Vec<i32>,
   id: usize
 }
 
+#[derive(Debug, Clone)]
 struct Powerset {
   symches: Vec<usize>,
+}
+impl Powerset {
+  // how many symches are in this powerset
+  pub fn count(&self) -> usize {
+    self.symches.len()
+  }
 }
 
 pub struct ASF {
@@ -112,7 +118,7 @@ impl ASF {
   fn peak(&mut self) -> Result<usize> {
     let mut bocage = &mut self.bocage;
     let augment_or_node_id = bocage.top_or_node()?;
-    let augment_and_node_id = self.or_nodes[augment_or_node_id as usize].id;
+    let augment_and_node_id = self.or_nodes[augment_or_node_id as usize].nids[0];
     let start_or_node_id = bocage.and_node_cause(augment_and_node_id as i32)?;
     let base_nidset = self.obtain_nidset(vec![start_or_node_id]);
     let glade_id = base_nidset.id;
@@ -139,7 +145,6 @@ impl ASF {
   }
 
   fn compute_symches(&mut self, glade_id: usize) -> Result<&mut Glade> {
-    eprintln!("-- called compute_symches\n");
     let mut source_data = Vec::new();
     {
       let base_nidset = self.nidset_by_id.get(&glade_id).unwrap();
@@ -182,8 +187,8 @@ impl ASF {
     // choicepoint.[Marpa::R2::Internal::Choicepoint::FACTORING_STACK] = undef;
     // Check if choicepoint already seen?
     let mut symches     = Vec::new();
-    // let symch_count = choicepoint_powerset.count();
-    'SYMCH: for symch_ix in 0 .. 0 { // ..  symch_count
+    let symch_count = choicepoint_powerset.count();
+    'SYMCH: for symch_ix in 0..symch_count {
       dbg!(symch_ix);
       // choicepoint.factoring_stack = Vec::new();
 //         my $symch_nidset = $choicepoint_powerset->nidset($asf, $symch_ix);
@@ -243,7 +248,7 @@ impl ASF {
                   .expect("Attempt to use an invalid glade");
     glade.symches = symches;
     glade.id = glade_id;
-    Ok(glade)
+    Ok(dbg!(glade))
   }
 
   fn glade_is_visited(&self, glade_id: usize) -> bool {
@@ -265,17 +270,18 @@ impl ASF {
     let token_id     = grammar.source_xsy(token_nsy_id)?;
 
     // -2 is reserved for 'end of data'
-    Ok(-token_id - 3)
+    Ok(-token_id -3)
   }
 }
 
+const NID_LEAF_BASE : i32 = -43;
 /// Range from -1 to -42 reserved for special values
-fn and_node_to_nid(offset: i32) -> i32 { -offset + NID_LEAF_BASE }
+fn and_node_to_nid(offset: i32) -> i32 { NID_LEAF_BASE - offset }
 /// Range from -1 to -42 reserved for special values
-fn nid_to_and_node(offset: i32) -> i32 { -offset + NID_LEAF_BASE }
+fn nid_to_and_node(offset: i32) -> i32 { NID_LEAF_BASE - offset }
 
 
-
+#[derive(Debug, Clone)]
 pub struct Glade {
   id: usize,
   registered: bool,

@@ -134,8 +134,7 @@ impl Parser {
     pub fn parse_and_traverse_forest<T: TokenSource<U>, U: Token, PT, PS>(&mut self, tokens: T, init_state:PS, traverser: Box<dyn Traverser<ParseTree = PT, ParseState=PS>>) -> Result<(PT, PS)> {
         // we need to read the tokens before starting the ASF step
         self.read(tokens)?;
-        let mut current_state = mem::replace(&mut self.state, GReady);
-        if let R(recce) = current_state {
+        if let R(recce) = mem::replace(&mut self.state, GReady) {
             let mut asf = ASF::new(recce)?;
             asf.traverse(init_state, traverser)
         } else {

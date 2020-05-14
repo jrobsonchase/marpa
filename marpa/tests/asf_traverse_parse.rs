@@ -12,6 +12,22 @@ use std::io::Cursor;
 use std::rc::Rc;
 use std::collections::HashMap;
 
+const PANDA_INPUT : &str = "a panda eats shoots and leaves.";
+
+#[test]
+fn recce_parse_sanity() {
+  // check that recce behaves as expected, for sanity's sake
+  let (mut parser, b, rule_names) = build_grammar().expect("grammar build should succeed, not core part of test");
+
+  let mut parsed_result_iterator = parser.run_recognizer(ByteScanner::new(Cursor::new(PANDA_INPUT))).expect("recognizer suceeds");
+  let mut parse_count = 0;
+  while let Some(v) = parsed_result_iterator.next() {
+    // println!("{}", proc_value(b.clone(), v));
+    parse_count += 1;
+  }
+  assert_eq!(parse_count, 3, "panda sentence should have three parses with run_recognizer.");
+}
+
 #[test]
 fn asf_traverse_parse() {
   let runner_result = runner_asf_traverse();
@@ -19,11 +35,31 @@ fn asf_traverse_parse() {
 }
 
 fn runner_asf_traverse() -> Result<Vec<String>> {
+  let (mut parser, b, rule_names) = build_grammar().expect("grammar build should succeed, not core part of test");
+  // Now that we have validated the panda grammar is correctly ambiguous,
+  // reparse it via the ASFs
+  let mut parse_forest_iterator = parser.parse_and_traverse_forest(
+    ByteScanner::new(Cursor::new(PANDA_INPUT)),
+    (),//init state
+    Box::new(ExhaustiveTraverser { rule_names: rule_names.clone() })
+  )?;
+
+  let mut parse_forest_iterator = parser.parse_and_traverse_forest(
+    ByteScanner::new(Cursor::new(PANDA_INPUT)),
+    (),//init state
+    Box::new(PruningTraverser { rule_names })
+  )?;
+
+  Ok(Vec::new())
+}
+
+// Do a standalone build for each test, to avoid reentrance errors
+fn build_grammar() -> Result<(Parser, TreeBuilder, HashMap<i32, &'static str>)> {
   let mut g = Grammar::new()?;
   let mut b = TreeBuilder::new();
 
   let ws = g.string_set(None, "\t\n\r ")?;
-  b.discard(ws.rule());
+  //b.discard(ws.rule());
 
   let period = g.literal_string(None, ".")?;
   let cc = g.literal_string(None, "and")?;
@@ -54,12 +90,12 @@ fn runner_asf_traverse() -> Result<Vec<String>> {
   let s = g.rule(None, &[np, ws, vp, period])?;
   g.set_start(s)?;
 
-  for t_rule in &[cc, det1, det2, panda, eats, shoots, leaves] {
-    b.token(t_rule.rule());
-  }
-  for r in &[nn, dt, nns, vbz, np, vp, s] {
-    b.rule(r.rule());
-  }
+  // for t_rule in &[cc, det1, det2, panda, eats, shoots, leaves] {
+  //   b.token(t_rule.rule());
+  // }
+  // for r in &[nn, dt, nns, vbz, np, vp, s] {
+  //   b.rule(r.rule());
+  // }
 
   let mut rule_names = HashMap::new();
   rule_names.insert(np.rule(),"NP");
@@ -69,36 +105,9 @@ fn runner_asf_traverse() -> Result<Vec<String>> {
   rule_names.insert(nns.rule(),"NNS");
   rule_names.insert(vbz.rule(),"VBZ");
   rule_names.insert(dt.rule(),"DT");
-
   let mut parser = Parser::with_grammar(g.unwrap());
-  let panda_input = "a panda eats shoots and leaves.";
-  let mut parsed_result_iterator = parser.run_recognizer(ByteScanner::new(Cursor::new(panda_input)))?;
-  let mut parse_count = 0;
-  while let Some(v) = parsed_result_iterator.next() {
-    println!("{}", proc_value(b.clone(), v));
-    parse_count += 1;
-  }
-  assert_eq!(parse_count, 3, "panda sentence should have three parses with run_recognizer.");
-
-  // Now that we have validated the panda grammar is correctly ambiguous,
-  // reparse it via the ASFs
-  let mut parse_forest_iterator = parser.parse_and_traverse_forest(
-    ByteScanner::new(Cursor::new(panda_input)),
-    (),//init state
-    Box::new(ExhaustiveTraverser { rule_names: rule_names.clone() })
-  )?;
-
-  // Now that the ASFs work with the full traversal, reparse using a pacifist pragma
-  // Pragma: Pandas are pacifists (don't shoot)
-  let mut parse_forest_iterator = parser.parse_and_traverse_forest(
-    ByteScanner::new(Cursor::new(panda_input)),
-    (),//init state
-    Box::new(PruningTraverser { rule_names })
-  )?;
-
-  Ok(Vec::new())
+  Ok((parser, b, rule_names))
 }
-
 
 struct ExhaustiveTraverser {
   rule_names: HashMap<i32, &'static str>
@@ -115,7 +124,7 @@ impl Traverser for ExhaustiveTraverser {
     // This routine converts the glade into a list of Penn-tagged elements.
     // It is called recursively.
     let rule_id = glade.rule_id();
-    // let symbol_id = glade.symbol_id();
+    // let symbol_id = dbg!(glade.symbol_id());
     // // let symbol_name = panda_grammar.symbol_name(symbol_id);
 
     // // A token is a single choice, and we know enough to fully Penn-tag it

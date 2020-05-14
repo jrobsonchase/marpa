@@ -105,11 +105,12 @@ impl Order {
     pub fn or_node_and_node_ids(&mut self, or_node_id: usize) -> Vec<i32> {
         let mut ids = Vec::new();
         match unsafe { _marpa_o_or_node_and_node_count(self.internal, or_node_id as i32) } {
-            -1 | 0 => {} // nothing to do
-            c if c < 0 => panic!("Invalid or node ID {}", or_node_id),
+            -1 => {},
+            c if c < -1 => panic!("Invalid or node ID {}", or_node_id),
             count => for ix in 0 .. count {
-                ids.push(
-                    unsafe { _marpa_o_or_node_and_node_id_by_ix(self.internal, or_node_id as i32, ix) });
+                    let and_node_id = unsafe {
+                        _marpa_o_or_node_and_node_id_by_ix(self.internal, or_node_id as i32, ix) };
+                    ids.push(and_node_id);
             }
         }
         ids
