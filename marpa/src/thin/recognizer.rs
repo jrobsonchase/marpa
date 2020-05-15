@@ -15,7 +15,7 @@ pub struct Recognizer {
     internal: Marpa_Recognizer,
     // we need to keep a reference to this accessible
     // in order to read error codes.
-    grammar: Grammar,
+    pub(crate) grammar: Grammar,
 }
 
 result_from!(Recognizer, Grammar);

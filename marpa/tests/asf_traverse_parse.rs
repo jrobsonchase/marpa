@@ -123,16 +123,15 @@ impl Traverser for ExhaustiveTraverser {
   fn traverse_glade(&self, glade: &mut Glade, state: Self::ParseState) -> Result<(Self::ParseTree, Self::ParseState)> {
     // This routine converts the glade into a list of Penn-tagged elements.
     // It is called recursively.
-    let rule_id = glade.rule_id();
-    // let symbol_id = dbg!(glade.symbol_id());
-    // // let symbol_name = panda_grammar.symbol_name(symbol_id);
+    let rule_id = dbg!(glade.rule_id());
+    let symbol_id = dbg!(glade.symbol_id());
 
-    // // A token is a single choice, and we know enough to fully Penn-tag it
-    // if rule_id.is_none() {
+    // A token is a single choice, and we know enough to fully Penn-tag it
+    if rule_id == 0 {
     //   let literal  = glade.literal();
     //   let penn_tag = penn_tag.get(symbol_id);
     //   return Ok(vec![format!("({} {})",penn_tag, literal)]);
-    // }
+    }
 
     // let mut return_value = Vec::new();
 

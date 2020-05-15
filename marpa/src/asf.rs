@@ -1,24 +1,24 @@
-use crate::thin::Tree;
+mod glade;
+mod nidset;
+
 use std::collections::HashMap;
 use std::rc::Rc;
+use crate::thin::Tree;
 use crate::result::Result;
 use crate::thin::{
-    Bocage,
-    Grammar,
-    Order,
-    Recognizer};
+  Bocage,
+  Grammar,
+  Order,
+  Recognizer};
+
+pub use self::glade::*;
+pub use self::nidset::*;
 
 pub trait Traverser {
   type ParseTree;
   type ParseState;
 
   fn traverse_glade(&self, glade: &mut Glade, state: Self::ParseState) -> Result<(Self::ParseTree, Self::ParseState)>;
-}
-
-#[derive(Debug, Clone)]
-struct Nidset {
-  nids: Vec<i32>,
-  id: usize
 }
 
 #[derive(Debug, Clone)]
@@ -111,7 +111,7 @@ impl ASF {
 
   pub fn traverse<PT,PS>(&mut self, init_state: PS, traverser: Box<dyn Traverser<ParseTree=PT, ParseState=PS>>) -> Result<(PT, PS)> {
     let peak = self.peak()?;
-    let peak_glade = self.glade_obtain(peak)?;
+    let peak_glade = self.obtain_glade(peak)?;
     traverser.traverse_glade(peak_glade, init_state)
   }
 
@@ -125,11 +125,11 @@ impl ASF {
     // Cannot "obtain" the glade if it is not registered
     let mut glade = self.glades.entry(glade_id).or_insert(Glade::default());
     (*glade).registered = true;
-    self.glade_obtain(glade_id);
+    self.obtain_glade(glade_id);
     Ok(glade_id)
   }
 
-  fn glade_obtain(&mut self, glade_id: usize) -> Result<&mut Glade> {
+  fn obtain_glade(&mut self, glade_id: usize) -> Result<&mut Glade> {
     let factoring_max = self.factoring_max;
     let mut glade  = self.glades.get(&glade_id)
                   .expect("Attempt to use an invalid glade");
@@ -244,11 +244,19 @@ impl ASF {
 //         } ## end FACTORINGS_LOOP: for ( my $nid_ix = 0; $nid_ix < $nid_count; $nid_ix...)
 //         push @symches, \@factorings;
     }
+    // precompute symbol id and set it on the glade
+    let nidset       = self.nidset_by_id.get(&glade_id).unwrap_or_else(||
+      panic!("No glade found for glade ID {:?}", glade_id));
+    let nid0         = nidset.get_nid(0);
+    let symbol_id = self.nid_symbol_id(nid0)?;
+
     let mut glade  = self.glades.get_mut(&glade_id)
                   .expect("Attempt to use an invalid glade");
     glade.symches = symches;
     glade.id = glade_id;
-    Ok(dbg!(glade))
+    glade.symbol_id  = symbol_id;
+
+    Ok(glade)
   }
 
   fn glade_is_visited(&self, glade_id: usize) -> bool {
@@ -272,6 +280,34 @@ impl ASF {
     // -2 is reserved for 'end of data'
     Ok(-token_id -3)
   }
+
+  pub(crate) fn nid_token_id(&self, nid: i32) -> Result<Option<i32>> {
+    if nid > NID_LEAF_BASE {
+     return Ok(None);
+    }
+    let and_node_id  = nid_to_and_node(nid);
+    let grammar_c    = &self.recce.grammar;
+    let bocage       = &self.bocage;
+    let token_nsy_id = bocage.and_node_symbol(and_node_id)?;
+    let token_id     = grammar_c.source_xsy(token_nsy_id)?;
+    Ok(Some(token_id))
+  }
+
+  pub(crate) fn nid_symbol_id(&self, nid: i32) -> Result<i32> {
+    if let Some(token_id) = self.nid_token_id(nid)? {
+      return Ok(token_id);
+    } else if nid < 0 {
+      return Err(format!("No symbol ID for node ID: {}", nid).into());
+    }
+
+    // Not a token, so return the LHS of the rule
+    let grammar_c   = &self.recce.grammar;
+    let bocage    = &self.bocage;
+    let irl_id    = bocage.or_node_irl(nid)?;
+    let xrl_id    = grammar_c.source_xrl(irl_id)?;
+    let lhs_id    = grammar_c.rule_lhs(xrl_id)?;
+    Ok(lhs_id)
+  }
 }
 
 const NID_LEAF_BASE : i32 = -43;
@@ -279,29 +315,3 @@ const NID_LEAF_BASE : i32 = -43;
 fn and_node_to_nid(offset: i32) -> i32 { NID_LEAF_BASE - offset }
 /// Range from -1 to -42 reserved for special values
 fn nid_to_and_node(offset: i32) -> i32 { NID_LEAF_BASE - offset }
-
-
-#[derive(Debug, Clone)]
-pub struct Glade {
-  id: usize,
-  registered: bool,
-  visited: bool,
-  symches: Vec<usize>,
-}
-
-impl Default for Glade {
-  fn default() -> Self {
-    Glade {
-      id: 0,
-      registered: false,
-      visited: false,
-      symches: Vec::new()
-    }
-  }
-}
-
-impl Glade {
-  pub fn rule_id(&self) -> usize {
-    self.id
-  }
-}
