@@ -31,7 +31,7 @@ fn recce_parse_sanity() {
 #[test]
 fn asf_traverse_parse() {
   let runner_result = runner_asf_traverse();
-  assert!(runner_result.is_ok(), format!("failed to run asf traversal: {:?}", runner_result.err()));
+  assert!(runner_result.is_ok(), "failed to run asf traversal: {:?}", runner_result.err());
 }
 
 fn runner_asf_traverse() -> Result<Vec<String>> {
