@@ -2,12 +2,11 @@ mod glade;
 mod nidset;
 
 use std::collections::HashMap;
-use std::rc::Rc;
-use crate::thin::Tree;
+
+
 use crate::result::Result;
 use crate::thin::{
   Bocage,
-  Grammar,
   Order,
   Recognizer};
 
@@ -73,9 +72,9 @@ impl ASF {
     }
   }
 
-  pub fn new(mut recce: Recognizer) -> Result<Self> {
+  pub fn new(recce: Recognizer) -> Result<Self> {
     // Initialize all usual thin:: structs here, we'll need them
-    let mut bocage = Bocage::new(&recce)?;
+    let bocage = Bocage::new(&recce)?;
     let mut ordering = bocage.get_ordering().expect(
       "An attempt was make to create an ASF for a null parse\n
           A null parse is a successful parse of a zero-length string\n
@@ -83,9 +82,9 @@ impl ASF {
     let mut or_nodes = Vec::new();
     let mut or_node_id = 0;
     loop {
-      let mut and_node_ids = ordering.or_node_and_node_ids(or_node_id);
+      let and_node_ids = ordering.or_node_and_node_ids(or_node_id);
       if and_node_ids.is_empty() {break;}
-      let mut build_and_node_ids = and_node_ids.iter().map(|id|
+      let _build_and_node_ids = and_node_ids.iter().map(|id|
         (( bocage.and_node_predecessor(*id).unwrap_or(-1)), id)).collect::<Vec<_>>();
       // TODO: Is this used anywhere?
       // build_and_node_ids.sort();
@@ -116,7 +115,7 @@ impl ASF {
   }
 
   fn peak(&mut self) -> Result<usize> {
-    let mut bocage = &mut self.bocage;
+    let bocage = &mut self.bocage;
     let augment_or_node_id = bocage.top_or_node()?;
     let augment_and_node_id = self.or_nodes[augment_or_node_id as usize].nids[0];
     let start_or_node_id = bocage.and_node_cause(augment_and_node_id as i32)?;
@@ -130,8 +129,8 @@ impl ASF {
   }
 
   fn obtain_glade(&mut self, glade_id: usize) -> Result<&mut Glade> {
-    let factoring_max = self.factoring_max;
-    let mut glade  = self.glades.get(&glade_id)
+    let _factoring_max = self.factoring_max;
+    let glade  = self.glades.get(&glade_id)
                   .expect("Attempt to use an invalid glade");
     if !glade.registered {
       panic!("attempt to use an unregistered glade with ID: {}", glade_id);
@@ -174,7 +173,7 @@ impl ASF {
       }
       nids_with_current_sort_ix.push(this_nid_opt.unwrap());
       nid_ix += 1;
-      if let Some((sort_ix_of_this_nid, this_nid)) = source_data.get(nid_ix-1) {
+      if let Some((_sort_ix_of_this_nid, this_nid)) = source_data.get(nid_ix-1) {
         this_nid_opt = Some(*this_nid);
         continue 'NID;
       }
@@ -186,7 +185,7 @@ impl ASF {
     // choicepoint.[Marpa::R2::Internal::Choicepoint::ASF] = $asf;
     // choicepoint.[Marpa::R2::Internal::Choicepoint::FACTORING_STACK] = undef;
     // Check if choicepoint already seen?
-    let mut symches     = Vec::new();
+    let symches     = Vec::new();
     let symch_count = choicepoint_powerset.count();
     'SYMCH: for symch_ix in 0..symch_count {
       dbg!(symch_ix);

@@ -2,7 +2,7 @@ use std::mem;
 
 use crate::lexer::token::Token;
 use crate::lexer::token_source::TokenSource;
-use crate::asf::{Glade,ASF, Traverser};
+use crate::asf::{ASF, Traverser};
 use crate::result::Result;
 use crate::thin::{
     Bocage,
